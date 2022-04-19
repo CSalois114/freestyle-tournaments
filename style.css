@@ -1,0 +1,62 @@
+:root {
+  --competitor-img-size: 75px;
+}
+
+img {
+  max-width: var(--competitor-img-size);
+  max-height: var(--competitor-img-size);
+}
+
+.name {
+  height: var(--competitor-img-size);
+  vertical-align: middle;
+  display: inline-block;
+}
+
+#bracket {
+  background-image: url('assets/bracket.png');
+  background-repeat: no-repeat;
+  background-size: 1200px 800px ;
+  display: flex;
+}
+
+.octofinals .bottom {
+  margin: -43px 0px 10px 0px;
+}
+
+.octofinals .middle {
+  margin: -43px 0px 3px 0px;
+}
+
+.octofinals {
+  width: 252px;
+}
+
+.quarterfinals .pair.bottom .top img{
+  margin-top: 130px;
+}
+
+.quarterfinals .competitor.top img {
+  margin-bottom: 144px;
+}
+
+.quarterfinals {
+  width: 96px;
+  margin-top: 32px;
+}
+
+.semifinals {
+  width: 95px;
+  margin-top: 138px;
+}
+
+.semifinals img {
+  margin-bottom: 363px;
+}
+
+.home.finals {
+  margin-top: 317px;
+}
+
+
+
