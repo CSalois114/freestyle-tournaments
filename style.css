@@ -1,5 +1,21 @@
 :root {
   --competitor-img-size: 75px;
+  --bracket-width: 1200px;
+  --bracket-height: 800px;
+}
+
+body {
+  background: linear-gradient(
+    135deg, 
+    rgb(139, 53, 173) 0%, 
+    rgba(149,24,140,1) 100%);
+  color: rgb(214, 211, 211);
+}
+
+#title {
+  width: var(--bracket-width);
+  text-align: center;
+  position: absolute;
 }
 
 img {
@@ -20,7 +36,7 @@ img {
 #bracket {
   background-image: url('assets/bracket.png');
   background-repeat: no-repeat;
-  background-size: 1200px 800px ;
+  background-size: var(--bracket-width) var(--bracket-height);
   display: flex;
 }
 .octofinals {
