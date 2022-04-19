@@ -7,32 +7,68 @@ const URL_BASE = 'https://pokeapi.co/api/v2/pokemon/'
 document.addEventListener('DOMContentLoaded', async function() {
     
     await generateTournament() // Wait until tournament is generated
+    
     //tournamentResult()
 })
 
 const tournamentStructure = () => { // Generate tournament structure
-    let roundIndex;
+    let roundIndex, fightingFor;
     for (let index  = 0; index < 15; index++) {
         switch(index){
-            case 0: case 1:
+            case 0: 
+                roundIndex = 8    
+                fightingFor = 'home'  
+                break
+            case 1:
                 roundIndex = 8
+                fightingFor = 'away'
                 break;
-            case 2: case 3:
+            case 2: 
                 roundIndex = 9
+                fightingFor = 'home'
                 break;
-            case 4: case 5:
+            case 3:
+                roundIndex = 9
+                fightingFor = 'away'
+                break;
+            case 4: 
                 roundIndex = 10
+                fightingFor = 'home'
                 break;
-            case 6: case 7:
+            case 5:
+                roundIndex = 10
+                fightingFor = 'away'
+                break;
+            case 6: 
                 roundIndex = 11
+                fightingFor = 'home'
                 break;
-            case 8: case 9:
+            case 7:
+                roundIndex = 11
+                fightingFor = 'away'
+                break;
+            case 8:
                 roundIndex = 12
+                fightingFor = 'home'
                 break;
-            case 10: case 11:
+            case 9:
+                roundIndex = 12
+                fightingFor = 'away'
+                break;
+            case 10: 
                 roundIndex = 13
+                fightingFor = 'home'
                 break;
-            case 12: case 13:
+            case 11:
+                roundIndex = 13
+                fightingFor = 'away'
+                break;
+            case 12: 
+                fightingFor = 'home'
+                roundIndex = 14
+                break;
+            case 13:
+                fightingFor = 'away'
                 roundIndex = 14
                 break;
             default:
@@ -43,7 +79,8 @@ const tournamentStructure = () => { // Generate tournament structure
             home: '',
             away: '',
             status: 'open',
-            nextFight: roundIndex
+            nextFight: roundIndex,
+            placement: fightingFor
         }
     }
 }
@@ -95,8 +132,6 @@ const fillTournamentHTML = () => {
         names = roundHTML.getElementsByClassName('name')
         images = roundHTML.getElementsByTagName('img')
 
-        console.log(round)
-
         //home contender
         names[0].textContent = round.home.species.name
         images[0].src = round.home.sprites.front_default
@@ -106,11 +141,100 @@ const fillTournamentHTML = () => {
         names[1].textContent = round.away.species.name
         images[1].src = round.away.sprites.front_default
         images[1].id = round.away.id
+
+        for (const oneimage of images) {
+            oneimage.addEventListener('click', winnerSelected)
+        }
+
+    }
+
+    console.log(tournament)
+}
+
+const winnerSelected = (event) => {
+    let winner, name, image;
+    let selected = event.target.id
+
+    let round = event.target.parentNode.parentNode.id.match(/\d+/)[0]
+    let nextFight = tournament[`fight${round}`].nextFight
+
+    console.log(round)
+
+
+
+    if(tournament[`fight${round}`].status == 'closed'){
+
+        tournament[`fight${round}`].home.id == selected ? winner = tournament[`fight${round}`].home : winner = tournament[`fight${round}`].away
+        roundHTML = document.getElementById(`round${nextFight}`)
+        
+        if(tournament[`fight${round}`].placement == 'home'){
+            tournament[`fight${nextFight}`].home = winner
+
+            if(nextFight == 14){
+                roundHTML = document.getElementById('home-finals')
+                name = roundHTML.getElementsByTagName('h3')
+                name[0].textContent = winner.species.name
+                image = roundHTML.getElementsByTagName('img')
+                image[0].src = winner.sprites.front_default
+                image[0].id = winner.id
+                image[0].addEventListener('click', finalWinner)
+            }else{
+                image = roundHTML.getElementsByTagName('img')
+                image[0].src = winner.sprites.front_default
+                image[0].id = winner.id
+                image[0].addEventListener('click', winnerSelected)
+            }
+        }else{
+            tournament[`fight${nextFight}`].away = winner
+
+            if(nextFight == 14){
+                roundHTML = document.getElementById('away-finals')
+                name = roundHTML.getElementsByTagName('h3')
+                name[0].textContent = winner.species.name
+                image = roundHTML.getElementsByTagName('img')
+                image[0].src = winner.sprites.front_default
+                image[0].id = winner.id
+                image[0].addEventListener('click', finalWinner)
+            }else{
+                image = roundHTML.getElementsByTagName('img')
+                image[1].src = winner.sprites.front_default
+                image[1].id = winner.id
+                image[1].addEventListener('click', winnerSelected)
+            }
+        }
+
+        if(tournament[`fight${nextFight}`].home != '' && tournament[`fight${nextFight}`].away != ''){
+            tournament[`fight${nextFight}`].status = 'closed'
+        }
+
+        let images = event.target.parentNode.parentNode.getElementsByTagName('img')
+        for (const oneImage of images) {
+            oneImage.removeEventListener('click', winnerSelected)
+        }
+    }else{
+        alert('Please select opponent before advancing')
+    }
+
+}
+
+const finalWinner = (event) =>{
+    let winner;
+    let selected = event.target.id
+    console.log(event.target)
+    if(tournament['fight14'].status == 'closed'){
+
+        tournament[`fight14`].home.id == selected ? winner = tournament[`fight14`].home : winner = tournament[`fight14`].away
+        winnerSpot = document.getElementById('winner')
+
+        winnerSpot.getElementsByTagName('img')[0].src= winner.sprites.front_default;
+        winnerSpot.getElementsByTagName('h2')[1].textContent = winner.species.name
+    }else{
+        alert('Please select opponent before advancing')
     }
 }
 
 const tournamentResult = () => { // Randomizes the results of each fight and gives a final result
-    let result, nextFight, winner
+    let result, nextFight, winner, round, image, name
     for (let index = 0; index < 15; index++) {
         result =  Math.floor(Math.random() * 2 )
 
@@ -119,11 +243,46 @@ const tournamentResult = () => { // Randomizes the results of each fight and giv
         result == 0 ? winner = tournament[`fight${index}`].home : winner = tournament[`fight${index}`].away
         if(index == 14){
             console.log(`THE WINNER IS: ${winner.species.name}`)
+
+            winnerSpot = document.getElementById('winner')
+
+            winnerSpot.getElementsByTagName('img')[0].src= winner.sprites.front_default;
+            winnerSpot.getElementsByTagName('h2')[0].textContent = winner.species.name
             break;
         }
-        
-        tournament[`fight${nextFight}`].home == '' ? tournament[`fight${nextFight}`].home = winner : tournament[`fight${nextFight}`].away = winner
 
+        round = document.getElementById(`round${nextFight}`)
+        
+
+        if(tournament[`fight${nextFight}`].home == ''){
+            tournament[`fight${nextFight}`].home = winner
+
+            if(nextFight == 14){
+                round = document.getElementById('home-finals')
+                name = round.getElementsByTagName('h3')
+                name[0].textContent = winner.species.name
+                image = round.getElementsByTagName('img')
+                image[0].src = winner.sprites.front_default
+            }else{
+                image = round.getElementsByTagName('img')
+                image[0].src = winner.sprites.front_default
+                image[0].id = winner.id
+            }
+        }else{
+            tournament[`fight${nextFight}`].away = winner
+
+            if(nextFight == 14){
+                round = document.getElementById('away-finals')
+                name = round.getElementsByTagName('h3')
+                name[0].textContent = winner.species.name
+                image = round.getElementsByTagName('img')
+                image[0].src = winner.sprites.front_default
+            }else{
+                image = round.getElementsByTagName('img')
+                image[1].src = winner.sprites.front_default
+                image[1].id = winner.id
+            }
+        }
 
         if(tournament[`fight${nextFight}`].home != '' && tournament[`fight${nextFight}`].away != ''){
             tournament[`fight${nextFight}`].status = 'closed'
