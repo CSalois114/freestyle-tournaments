@@ -122,13 +122,17 @@ const generateTournament = async() => { // Main function: generates tournament s
 
         await fetch(`${URL_BASE}${id}`)
         .then((res)=> res.json())
-        .then((fighter)=> getFigher(fighter))
+        .then((fighter)=> {
+            const name =fighter.species.name
+            fighter.species.name = name.charAt(0).toUpperCase() + name.slice(1)
+            getFighter(fighter)
+        })
     }
     postContenders()
     generateTournamentBracket(contenders)
 }
 
-const getFigher = (fighter) => { // Add pokemons to contenders list
+const getFighter = (fighter) => { // Add pokemons to contenders list
     contenders.push(fighter)
 }
 
