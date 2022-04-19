@@ -95,18 +95,39 @@ const fillTournamentHTML = () => {
         names = roundHTML.getElementsByClassName('name')
         images = roundHTML.getElementsByTagName('img')
 
-        console.log(round)
+        // console.log(round)
 
         //home contender
         names[0].textContent = round.home.species.name
         images[0].src = round.home.sprites.front_default
         images[0].id = round.home.id
+        addShowStatsListener(images[0], round.home.stats)
 
         //Away contender
         names[1].textContent = round.away.species.name
         images[1].src = round.away.sprites.front_default
         images[1].id = round.away.id
+        addShowStatsListener(images[1], round.away.stats)
     }
+}
+
+const addShowStatsListener = (imgElm, stats) => {
+    const statsList = document.createElement('ul')
+    statsList.classList.add("stats")
+    stats.forEach(stat => {
+        const li = document.createElement('li')
+        li.textContent = `${stat.stat.name}: ${stat.base_stat}`
+        statsList.append(li)
+    })
+    statsList.style.display = 'none'
+    imgElm.parentElement.append(statsList)
+
+    imgElm.addEventListener('mouseover', () => {
+        statsList.style.display = 'block'
+    })
+    imgElm.addEventListener('mouseout', () => {
+        statsList.style.display = 'none'
+    })
 }
 
 const tournamentResult = () => { // Randomizes the results of each fight and gives a final result
