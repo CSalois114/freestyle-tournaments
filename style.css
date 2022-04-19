@@ -7,6 +7,10 @@ img {
   max-height: var(--competitor-img-size);
 }
 
+.away {
+  text-align: right;
+}
+
 .name {
   height: var(--competitor-img-size);
   vertical-align: middle;
@@ -19,10 +23,12 @@ img {
   background-size: 1200px 800px ;
   display: flex;
 }
+.octofinals {
+  min-width: 250px;
+}
 
 .octofinals .bottom {
   margin: -43px 0px 10px 0px;
-  width: 250px;
 }
 
 .octofinals .middle {
@@ -38,22 +44,17 @@ img {
 }
 
 .quarterfinals {
-  width: 86px;
+  min-width: 86px;
   margin-top: 28px;
 }
 
 .semifinals .competitor {
-  width: 107px;
+  min-width: 107px;
   margin-top: 135px;
   margin-bottom: 369px;
 }
 
-.semifinals img {
-}
-
-.home.finals {
+.finals {
   margin-top: 317px;
+  min-width: 157px;
 }
-
-
-
