@@ -5,11 +5,29 @@ let contenders = []
 const URL_BASE = 'https://pokeapi.co/api/v2/pokemon/'
 
 document.addEventListener('DOMContentLoaded', async function() {
+    await checkExistingTournament()
+    if(tournament != {}){
+        retrieveContenders()
+    }else{
+        await generateTournament() // Wait until tournament is generated
+    }
     
-    await generateTournament() // Wait until tournament is generated
+    //
     
     //tournamentResult()
 })
+
+const checkExistingTournament = () => {
+    fetch('http://localhost:3000/tournament')
+    .then((res)=>res.json())
+    .then((data)=> tournament = data)
+}
+
+const retrieveContenders = () => {
+    fetch('http://localhost:3000/contenders')
+    .then((res)=>res.json())
+    .then((data)=> contenders = data)
+}
 
 const tournamentStructure = () => { // Generate tournament structure
     let roundIndex, fightingFor;
@@ -80,7 +98,8 @@ const tournamentStructure = () => { // Generate tournament structure
             away: '',
             status: 'open',
             nextFight: roundIndex,
-            placement: fightingFor
+            placement: fightingFor,
+            clickable : true,
         }
     }
 }
@@ -105,7 +124,7 @@ const generateTournament = async() => { // Main function: generates tournament s
         .then((res)=> res.json())
         .then((fighter)=> getFigher(fighter))
     }
-    
+    postContenders()
     generateTournamentBracket(contenders)
 }
 
@@ -147,10 +166,8 @@ const fillTournamentHTML = () => {
         for (const oneimage of images) {
             oneimage.addEventListener('click', winnerSelected)
         }
-
     }
-
-    console.log(tournament)
+    saveTornament()
 }
 
 const winnerSelected = (event) => {
@@ -159,10 +176,6 @@ const winnerSelected = (event) => {
 
     let round = event.target.parentNode.parentNode.id.match(/\d+/)[0]
     let nextFight = tournament[`fight${round}`].nextFight
-
-    console.log(round)
-
-
 
     if(tournament[`fight${round}`].status == 'closed'){
 
@@ -213,6 +226,9 @@ const winnerSelected = (event) => {
         for (const oneImage of images) {
             oneImage.removeEventListener('click', winnerSelected)
         }
+        tournament[`fight${round}`].clickable = false
+        console.log(tournament)
+        saveTornament()
     }else{
         alert('Please select opponent before advancing')
     }
@@ -222,7 +238,6 @@ const winnerSelected = (event) => {
 const finalWinner = (event) =>{
     let winner;
     let selected = event.target.id
-    console.log(event.target)
     if(tournament['fight14'].status == 'closed'){
 
         tournament[`fight14`].home.id == selected ? winner = tournament[`fight14`].home : winner = tournament[`fight14`].away
@@ -230,6 +245,13 @@ const finalWinner = (event) =>{
 
         winnerSpot.getElementsByTagName('img')[0].src= winner.sprites.front_default;
         winnerSpot.getElementsByTagName('h2')[1].textContent = winner.species.name
+        
+        document.getElementById('away-finals').getElementsByTagName('img')[0].removeEventListener('click', finalWinner)
+        document.getElementById('home-finals').getElementsByTagName('img')[0].removeEventListener('click', finalWinner)
+        
+        saveTornament()
+
+        postNewChamp(winner)
     }else{
         alert('Please select opponent before advancing')
     }
@@ -309,5 +331,51 @@ const tournamentResult = () => { // Randomizes the results of each fight and giv
             tournament[`fight${nextFight}`].status = 'closed'
         }
         
+    }
+}
+
+const postContenders = () => {
+    try{
+        fetch('http://localhost:3000/contenders',{
+        method: 'PATCH',
+        headers:{
+            "Accept" : "application/json",
+            "Content-Type" : "application/json"
+        },
+        body: JSON.stringify(contenders)
+        })
+    }catch(error){
+        console.log(error)
+    }
+}
+
+const saveTornament = () => {
+    try{
+        fetch('http://localhost:3000/tournament',{
+        method: 'PATCH',
+        headers:{
+            "Accept" : "application/json",
+            "Content-Type" : "application/json"
+        },
+        body: JSON.stringify(tournament)
+        })
+    }catch(error){
+        console.log(error)
+    }
+}
+
+const postNewChamp = (winner) => {
+    try{
+        fetch('http://localhost:3000/podium',{
+            method: 'POST',
+            headers: {
+                "Accept" : "application/json",
+                "Content-Type" : "application/json"
+            },
+            body: JSON.stringify(winner)
+    
+        })
+    }catch(error){
+        console.log(winner)
     }
 }
