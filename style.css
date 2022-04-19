@@ -22,36 +22,33 @@ img {
 
 .octofinals .bottom {
   margin: -43px 0px 10px 0px;
+  width: 250px;
 }
 
 .octofinals .middle {
   margin: -43px 0px 3px 0px;
 }
 
-.octofinals {
-  width: 252px;
-}
-
 .quarterfinals .pair.bottom .top img{
-  margin-top: 130px;
+  margin-top: 122px;
 }
 
 .quarterfinals .competitor.top img {
-  margin-bottom: 144px;
+  margin-bottom: 152px;
 }
 
 .quarterfinals {
-  width: 96px;
-  margin-top: 32px;
+  width: 86px;
+  margin-top: 28px;
 }
 
-.semifinals {
-  width: 95px;
-  margin-top: 138px;
+.semifinals .competitor {
+  width: 107px;
+  margin-top: 135px;
+  margin-bottom: 369px;
 }
 
 .semifinals img {
-  margin-bottom: 363px;
 }
 
 .home.finals {
