@@ -7,7 +7,7 @@ const URL_BASE = 'https://pokeapi.co/api/v2/pokemon/'
 document.addEventListener('DOMContentLoaded', async function() {
     
     await generateTournament() // Wait until tournament is generated
-    tournamentResult()
+    //tournamentResult()
 })
 
 const tournamentStructure = () => { // Generate tournament structure
@@ -49,9 +49,12 @@ const tournamentStructure = () => { // Generate tournament structure
 }
 
 const generateTournament = async() => { // Main function: generates tournament structure and gets random pokemons as fighters
+    
     tournamentStructure()
-    let id, random=[], valid = false
+
+    let id, random=[], valid;
     for (let index = 0; index < 16; index++) {
+        valid= false;
         do{
             id = Math.floor(Math.random() * 300 + 1)
             if(!random.includes(id)){
@@ -60,11 +63,12 @@ const generateTournament = async() => { // Main function: generates tournament s
             }
         }while(!valid)
         
+
         await fetch(`${URL_BASE}${id}`)
         .then((res)=> res.json())
         .then((fighter)=> getFigher(fighter))
     }
-
+    
     generateTournamentBracket(contenders)
 }
 
@@ -73,14 +77,36 @@ const getFigher = (fighter) => { // Add pokemons to contenders list
 }
 
 const generateTournamentBracket = (contenders) => {  // Generates the tournament bracket and fills the object tournament
-    let counter = 0;
+    let round = 0;
     for (let index = 0; index < contenders.length; index=index+2) {
-        tournament[`fight${counter}`].home = contenders[index].species.name
-        tournament[`fight${counter}`].away = contenders[index+1].species.name
-        tournament[`fight${counter}`].status = 'closed'
-        counter++;
+        tournament[`fight${round}`].home = contenders[index]
+        tournament[`fight${round}`].away = contenders[index+1]
+        tournament[`fight${round}`].status = 'closed'
+        round++;
     }
+    fillTournamentHTML()
+}
 
+const fillTournamentHTML = () => {
+    let round, roundHTML, names, images;
+    for (let index = 0; index < 8; index++) {
+        round = tournament[`fight${index}`]
+        roundHTML = document.getElementById(`round${index}`)
+        names = roundHTML.getElementsByClassName('name')
+        images = roundHTML.getElementsByTagName('img')
+
+        console.log(round)
+
+        //home contender
+        names[0].textContent = round.home.species.name
+        images[0].src = round.home.sprites.front_default
+        images[0].id = round.home.id
+
+        //Away contender
+        names[1].textContent = round.away.species.name
+        images[1].src = round.away.sprites.front_default
+        images[1].id = round.away.id
+    }
 }
 
 const tournamentResult = () => { // Randomizes the results of each fight and gives a final result
@@ -92,15 +118,16 @@ const tournamentResult = () => { // Randomizes the results of each fight and giv
 
         result == 0 ? winner = tournament[`fight${index}`].home : winner = tournament[`fight${index}`].away
         if(index == 14){
-            console.log(`THE WINNER IS: ${winner}`)
+            console.log(`THE WINNER IS: ${winner.species.name}`)
             break;
         }
+        
         tournament[`fight${nextFight}`].home == '' ? tournament[`fight${nextFight}`].home = winner : tournament[`fight${nextFight}`].away = winner
+
 
         if(tournament[`fight${nextFight}`].home != '' && tournament[`fight${nextFight}`].away != ''){
             tournament[`fight${nextFight}`].status = 'closed'
         }
         
     }
-    console.log(tournament)
 }

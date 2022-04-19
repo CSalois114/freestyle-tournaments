@@ -6,9 +6,9 @@
 
 body {
   background: linear-gradient(
-    135deg, 
-    rgb(139, 53, 173) 0%, 
-    rgba(149,24,140,1) 100%);
+    90deg, 
+    rgb(7, 60, 206) 0%, 
+    rgb(116, 5, 5) 100%);
   color: rgb(214, 211, 211);
   max-width: max-content;
   margin: auto;
