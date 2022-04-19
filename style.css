@@ -35,6 +35,23 @@ body {
    max-height: 100px;
  }
 
+.stats {
+  position: absolute;
+  border: 3px solid black;
+  padding: 0px 5px 5px 20px;
+  margin-top: -72px;
+  margin-left: 75px;
+  background-color: darkslategray;
+  border-radius: 10px;
+  min-width: max-content;
+  max-width: max-content;
+  text-align: left;
+}
+
+.away .stats{
+  margin-top: -50px;
+}
+
 img {
   max-width: var(--competitor-img-size);
   max-height: var(--competitor-img-size);
