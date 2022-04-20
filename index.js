@@ -2,6 +2,8 @@ let tournament = {}
 let contenders = []
 let dbSize = 300 //temp, need real size
 
+let stock_image = 'https://pic.onlinewebfonts.com/svg/img_30754.png'
+
 const URL_BASE = 'https://pokeapi.co/api/v2/pokemon/'
 
 document.addEventListener('DOMContentLoaded', async() => {
@@ -188,11 +190,13 @@ const winnerSelected = (event) => {
                 image[0].src = winner.sprites.front_default
                 image[0].id = winner.id
                 image[0].addEventListener('click', finalWinner)
+                addShowStatsListener(image[0], winner.stats)
             }else{
                 image = roundHTML.getElementsByTagName('img')
                 image[0].src = winner.sprites.front_default
                 image[0].id = winner.id
                 image[0].addEventListener('click', winnerSelected)
+                addShowStatsListener(image[0], winner.stats)
             }
         }else{
             tournament[`fight${nextFight}`].away = winner
@@ -205,11 +209,13 @@ const winnerSelected = (event) => {
                 image[0].src = winner.sprites.front_default
                 image[0].id = winner.id
                 image[0].addEventListener('click', finalWinner)
+                addShowStatsListener(image[0], winner.stats)
             }else{
                 image = roundHTML.getElementsByTagName('img')
                 image[1].src = winner.sprites.front_default
                 image[1].id = winner.id
                 image[1].addEventListener('click', winnerSelected)
+                addShowStatsListener(image[1], winner.stats)
             }
         }
 
@@ -222,8 +228,8 @@ const winnerSelected = (event) => {
             oneImage.removeEventListener('click', winnerSelected)
         }
         tournament[`fight${round}`].clickable = false
-        console.log(tournament)
-        saveTornament()
+        //console.log(tournament)
+        //saveTornament()
     }else{
         alert('Please select opponent before advancing')
     }
@@ -335,6 +341,12 @@ const addResetFunctionality = () => {
     button.addEventListener('click', () => {
         tournament = {}
         contenders = []
+
+        let images = document.getElementsByTagName('img')
+        for (const img of images) {
+            img.src = stock_image
+        }
+
         generateTournament()
     })
 }
