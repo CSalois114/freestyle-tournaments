@@ -1,33 +1,33 @@
-let tournament = {
-}
+let tournament = {}
 let contenders = []
+let dbSize = 300
 
 const URL_BASE = 'https://pokeapi.co/api/v2/pokemon/'
 
-document.addEventListener('DOMContentLoaded', async function() {
-    await checkExistingTournament()
-    if(tournament != {}){
-        retrieveContenders()
-    }else{
-        await generateTournament() // Wait until tournament is generated
-    }
-    
-    //
-    
+document.addEventListener('DOMContentLoaded', async() => {
+    // await checkExistingTournament()
+    // if(tournament != {}){
+    //     retrieveContenders()
+    // }else{
+    //     await generateTournament() // Wait until tournament is generated
+    // }
+
+    generateTournament()
+    addResetFunctionality()
     //tournamentResult()
 })
 
-const checkExistingTournament = () => {
-    fetch('http://localhost:3000/tournament')
-    .then((res)=>res.json())
-    .then((data)=> tournament = data)
-}
+// const checkExistingTournament = () => {
+//     return fetch('http://localhost:3000/tournament')
+//     .then((res)=>res.json())
+//     .then((data)=> console.log(data))
+// }
 
-const retrieveContenders = () => {
-    fetch('http://localhost:3000/contenders')
-    .then((res)=>res.json())
-    .then((data)=> contenders = data)
-}
+// const retrieveContenders = () => {
+//     fetch('http://localhost:3000/contenders')
+//     .then((res)=>res.json())
+//     .then((data)=> contenders = data)
+// }
 
 const tournamentStructure = () => { // Generate tournament structure
     let roundIndex, fightingFor;
@@ -105,35 +105,26 @@ const tournamentStructure = () => { // Generate tournament structure
 }
 
 const generateTournament = async() => { // Main function: generates tournament structure and gets random pokemons as fighters
+     tournamentStructure()
+
+    const contenderIds = []
+    while(contenders.length < 16){
+        let id = Math.ceil(Math.random() * dbSize)
+        if(!contenderIds.includes(id)){
+            contenderIds.push(id)
+
+            await fetch(`${URL_BASE}${id}`)
+            .then(res => res.json())
+            .then(fighter => {
+                const name =fighter.species.name
+                fighter.species.name = name.charAt(0).toUpperCase() + name.slice(1)
+                contenders.push(fighter)
+            })
+        }
+    } 
     
-    tournamentStructure()
-
-    let id, random=[], valid;
-    for (let index = 0; index < 16; index++) {
-        valid= false;
-        do{
-            id = Math.floor(Math.random() * 300 + 1)
-            if(!random.includes(id)){
-                random.push(id)
-                valid = true
-            }
-        }while(!valid)
-        
-
-        await fetch(`${URL_BASE}${id}`)
-        .then((res)=> res.json())
-        .then((fighter)=> {
-            const name =fighter.species.name
-            fighter.species.name = name.charAt(0).toUpperCase() + name.slice(1)
-            getFighter(fighter)
-        })
-    }
-    postContenders()
+    // postContenders()
     generateTournamentBracket(contenders)
-}
-
-const getFighter = (fighter) => { // Add pokemons to contenders list
-    contenders.push(fighter)
 }
 
 const generateTournamentBracket = (contenders) => {  // Generates the tournament bracket and fills the object tournament
@@ -171,7 +162,7 @@ const fillTournamentHTML = () => {
             oneimage.addEventListener('click', winnerSelected)
         }
     }
-    saveTornament()
+    // saveTornament()
 }
 
 const winnerSelected = (event) => {
@@ -264,14 +255,15 @@ const finalWinner = (event) =>{
 const addShowStatsListener = (imgElm, stats) => {
     const statsList = document.createElement('ul')
     statsList.classList.add("stats")
+    statsList.style.display = 'none'
+    imgElm.parentElement.append(statsList)
+
     stats.forEach(stat => {
         const li = document.createElement('li')
         li.textContent = `${stat.stat.name}: ${stat.base_stat}`
         statsList.append(li)
     })
-    statsList.style.display = 'none'
-    imgElm.parentElement.append(statsList)
-
+    
     imgElm.addEventListener('mouseover', () => {
         statsList.style.display = 'block'
     })
@@ -336,6 +328,15 @@ const tournamentResult = () => { // Randomizes the results of each fight and giv
         }
         
     }
+}
+
+const addResetFunctionality = () => {
+    const button = document.getElementById("reset-button")
+    button.addEventListener('click', () => {
+        tournament = {}
+        contenders = []
+        generateTournament()
+    })
 }
 
 const postContenders = () => {

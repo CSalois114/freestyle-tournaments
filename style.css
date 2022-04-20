@@ -22,6 +22,14 @@ body {
   z-index: -1;
 }
 
+#reset {
+  position: absolute;
+  margin-left: calc(var(--bracket-width)/2);
+  top: 100px;
+  -ms-transform: translate(-50%);
+  transform: translate(-50%);
+}
+
 #winner {
   width: var(--bracket-width);
   text-align: center;
