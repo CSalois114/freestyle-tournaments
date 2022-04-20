@@ -1,23 +1,21 @@
 let tournament = {}
 let contenders = []
-let dbSize = 300 //temp, need real size
 
-let stock_image = 'https://pic.onlinewebfonts.com/svg/img_30754.png'
+let dbSize = 300 //temp, need real size
+const defaultImg = 'https://pic.onlinewebfonts.com/svg/img_30754.png'
 
 const URL_BASE = 'https://pokeapi.co/api/v2/pokemon/'
 
 document.addEventListener('DOMContentLoaded', async() => {
     await checkExistingTournament()
     
-    if(tournament.hasOwnProperty('fight1')){
+    if(tournament[0]) {
         retrieveContenders()
-        uploadSavedTornament()
-        
-    }else{
-        generateTournament() // Wait until tournament is generated
+        uploadSavedTournament()   
+    } else {
+        generateTournament()
     }
     
-    //generateTournament()
     addResetFunctionality()
     //tournamentResult()
 })
@@ -97,7 +95,8 @@ const tournamentStructure = () => { // Generate tournament structure
     }
 }
 
-const generateTournament = async() => { // Main function: generates tournament structure and gets random pokemons as fighters
+// Main function: generates tournament structure and gets random pokemon as fighters
+const generateTournament = async() => { 
      tournamentStructure()
 
     while(contenders.length < 16){
@@ -113,6 +112,7 @@ const generateTournament = async() => { // Main function: generates tournament s
     generateTournamentBracket(contenders)
 }
 
+// converts pokemon api object to basic contender object
 const serializePokemon = (apiPokemon) => {
 
     return {
@@ -161,10 +161,10 @@ const fillTournamentHTML = () => {
         }
     }
     
-    saveTornament()
+    saveTournament()
 }
 
-const uploadSavedTornament = () => {
+const uploadSavedTournament = () => {
     let name
     for (let index = 0; index < 15; index++) {
         round = tournament[`fight${index}`]
@@ -285,7 +285,7 @@ const winnerSelected = (event) => {
         }
         tournament[`fight${round}`].clickable = false
         //console.log(tournament)
-        saveTornament()
+        saveTournament()
     }else{
         alert('Please select opponent before advancing')
     }
@@ -344,7 +344,7 @@ const addResetFunctionality = () => {
         for (const oldImg of images) {
             const img = oldImg.cloneNode(true)
             oldImg.parentNode.replaceChild(img, oldImg)
-            img.src = stock_image
+            img.src = defaultImg
         }
 
         generateTournament()
@@ -441,7 +441,7 @@ const saveContenders = () => {  // Saves contenders
     }
 }
 
-const saveTornament = () => { // Saves Tournament state
+const saveTournament = () => { // Saves Tournament state
     try{
         fetch('http://localhost:3000/tournament',{
         method: 'PATCH',
