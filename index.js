@@ -109,7 +109,6 @@ const generateTournament = async() => { // Main function: generates tournament s
             .then(fighter => contenders.push(serializePokemon(fighter)))
         }
     } 
-    console.log(contenders)
     saveContenders()
     generateTournamentBracket(contenders)
 }
