@@ -107,25 +107,31 @@ const tournamentStructure = () => { // Generate tournament structure
 const generateTournament = async() => { // Main function: generates tournament structure and gets random pokemons as fighters
      tournamentStructure()
 
-    const contenderIds = []
     while(contenders.length < 16){
         let id = Math.ceil(Math.random() * dbSize)
-        if(!contenderIds.includes(id)){
-            contenderIds.push(id)
+        if(!contenders.find(contender => contender.id == id)){
 
             await fetch(`${URL_BASE}${id}`)
             .then(res => res.json())
-            .then(fighter => {
-                const name =fighter.species.name
-                fighter.species.name = name.charAt(0).toUpperCase() + name.slice(1)
-                contenders.push(fighter)
-            })
+            .then(fighter => contenders.push(fighter))
         }
     } 
     
     // postContenders()
     generateTournamentBracket(contenders)
 }
+
+const serializePokemon = (apiPokemon) => {
+
+    return {
+        id: apiPokemon.id,
+        name: capitalizeString(apiPokemon.species.name),
+        img: apiPokemon.sprites.front_default,
+        stats: apiPokemon.stats
+    }
+}
+
+const capitalizeString = (str) => str.charAt(0).toUpperCase() + str.slice(1)
 
 const generateTournamentBracket = (contenders) => {  // Generates the tournament bracket and fills the object tournament
     let round = 0;
