@@ -7,29 +7,20 @@ let stock_image = 'https://pic.onlinewebfonts.com/svg/img_30754.png'
 const URL_BASE = 'https://pokeapi.co/api/v2/pokemon/'
 
 document.addEventListener('DOMContentLoaded', async() => {
-    // await checkExistingTournament()
-    // if(tournament != {}){
-    //     retrieveContenders()
-    // }else{
-    //     await generateTournament() // Wait until tournament is generated
-    // }
-
-    generateTournament()
+    await checkExistingTournament()
+    
+    if(tournament.hasOwnProperty('fight1')){
+        retrieveContenders()
+        uploadSavedTornament()
+        
+    }else{
+        generateTournament() // Wait until tournament is generated
+    }
+    
+    //generateTournament()
     addResetFunctionality()
     //tournamentResult()
 })
-
-// const checkExistingTournament = () => {
-//     return fetch('http://localhost:3000/tournament')
-//     .then((res)=>res.json())
-//     .then((data)=> console.log(data))
-// }
-
-// const retrieveContenders = () => {
-//     fetch('http://localhost:3000/contenders')
-//     .then((res)=>res.json())
-//     .then((data)=> contenders = data)
-// }
 
 const tournamentStructure = () => { // Generate tournament structure
     let roundIndex, fightingFor;
@@ -119,13 +110,24 @@ const generateTournament = async() => { // Main function: generates tournament s
             .then(res => res.json())
             .then(fighter => {
                 const name =fighter.species.name
+                let object = {
+                    species : {
+                        name : fighter.species.name
+                    },
+                    sprites : {
+                        front_default : fighter.sprites.front_default
+                    },
+                    id : fighter.id,
+                    stats : fighter.stats
+
+                }
                 fighter.species.name = name.charAt(0).toUpperCase() + name.slice(1)
-                contenders.push(fighter)
+                contenders.push(object)
             })
         }
     } 
     
-    // postContenders()
+    saveContenders()
     generateTournamentBracket(contenders)
 }
 
@@ -164,7 +166,67 @@ const fillTournamentHTML = () => {
             oneimage.addEventListener('click', winnerSelected)
         }
     }
-    // saveTornament()
+    
+    saveTornament()
+}
+
+const uploadSavedTornament = () => {
+    let name
+    for (let index = 0; index < 15; index++) {
+        round = tournament[`fight${index}`]
+        if(index == 14){
+            if(round.home != ''){
+                roundHTML = document.getElementById('home-finals')
+                name = roundHTML.getElementsByTagName('h3')
+                name[0].textContent = round.home.species.name
+                image = roundHTML.getElementsByTagName('img')
+                image[0].src = round.home.sprites.front_default
+                image[0].id = round.home.id
+                image[0].addEventListener('click', finalWinner)
+                addShowStatsListener(image[0], round.home.stats)
+            }
+
+            if(round.away != ''){
+                roundHTML = document.getElementById('away-finals')
+                name = roundHTML.getElementsByTagName('h3')
+                name[0].textContent = round.away.species.name
+                image = roundHTML.getElementsByTagName('img')
+                image[0].src = round.away.sprites.front_default
+                image[0].id = round.away.id
+                image[0].addEventListener('click', finalWinner)
+                addShowStatsListener(image[0], round.away.stats)
+            }
+        }else{
+            roundHTML = document.getElementById(`round${index}`)
+            images = roundHTML.getElementsByTagName('img')
+            switch(index){
+                case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7:
+                    names = roundHTML.getElementsByClassName('name')
+                    names[0].textContent = round.home.species.name
+                    names[1].textContent = round.away.species.name
+                    break;
+            }
+
+            if(round.home != ''){
+                //home contender
+                images[0].src = round.home.sprites.front_default
+                images[0].id = round.home.id
+                addShowStatsListener(images[0], round.home.stats)
+            }
+            if(round.away != ''){
+                //Away contender
+                images[1].src = round.away.sprites.front_default
+                images[1].id = round.away.id
+                addShowStatsListener(images[1], round.away.stats)
+            }
+            if(round.clickable){
+                for (const oneimage of images) {
+                    oneimage.addEventListener('click', winnerSelected)
+                }
+            }
+        }
+
+    } 
 }
 
 const winnerSelected = (event) => {
@@ -229,7 +291,7 @@ const winnerSelected = (event) => {
         }
         tournament[`fight${round}`].clickable = false
         //console.log(tournament)
-        //saveTornament()
+        saveTornament()
     }else{
         alert('Please select opponent before advancing')
     }
@@ -249,8 +311,6 @@ const finalWinner = (event) =>{
         
         document.getElementById('away-finals').getElementsByTagName('img')[0].removeEventListener('click', finalWinner)
         document.getElementById('home-finals').getElementsByTagName('img')[0].removeEventListener('click', finalWinner)
-        
-        saveTornament()
 
         postNewChamp(winner)
     }else{
@@ -278,6 +338,23 @@ const addShowStatsListener = (imgElm, stats) => {
     })
 }
 
+const addResetFunctionality = () => {
+    const button = document.getElementById("reset-button")
+    button.addEventListener('click', () => {
+        tournament = {}
+        contenders = []
+
+        let images = document.getElementsByTagName('img')
+        for (const img of images) {
+            img.src = stock_image
+        }
+
+        generateTournament()
+    })
+}
+
+//Test
+/*
 const tournamentResult = () => { // Randomizes the results of each fight and gives a final result
     let result, nextFight, winner, round, image, name
     for (let index = 0; index < 15; index++) {
@@ -335,23 +412,23 @@ const tournamentResult = () => { // Randomizes the results of each fight and giv
         
     }
 }
+*/
 
-const addResetFunctionality = () => {
-    const button = document.getElementById("reset-button")
-    button.addEventListener('click', () => {
-        tournament = {}
-        contenders = []
+// CRUD
 
-        let images = document.getElementsByTagName('img')
-        for (const img of images) {
-            img.src = stock_image
-        }
-
-        generateTournament()
-    })
+const checkExistingTournament = () => { // Checks if there is an existing tournament
+    return fetch('http://localhost:3000/tournament')
+    .then((res)=>res.json())
+    .then((data)=> tournament = data)
 }
 
-const postContenders = () => {
+const retrieveContenders = () => { // Retrieves contenders if a tournament exists
+    fetch('http://localhost:3000/contenders')
+    .then((res)=>res.json())
+    .then((data)=> contenders = data)
+}
+
+const saveContenders = () => {  // Saves contenders
     try{
         fetch('http://localhost:3000/contenders',{
         method: 'PATCH',
@@ -366,7 +443,7 @@ const postContenders = () => {
     }
 }
 
-const saveTornament = () => {
+const saveTornament = () => { // Saves Tournament state
     try{
         fetch('http://localhost:3000/tournament',{
         method: 'PATCH',
@@ -381,7 +458,10 @@ const saveTornament = () => {
     }
 }
 
-const postNewChamp = (winner) => {
+const postNewChamp = (winner) => { // Saves a winner of a tournament in the podium
+    let object = {
+        name : winner.species.name
+    }
     try{
         fetch('http://localhost:3000/podium',{
             method: 'POST',
@@ -389,7 +469,7 @@ const postNewChamp = (winner) => {
                 "Accept" : "application/json",
                 "Content-Type" : "application/json"
             },
-            body: JSON.stringify(winner)
+            body: JSON.stringify(object)
     
         })
     }catch(error){
