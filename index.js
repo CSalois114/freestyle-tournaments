@@ -109,7 +109,7 @@ const generateTournament = async() => { // Main function: generates tournament s
             .then(fighter => contenders.push(serializePokemon(fighter)))
         }
     } 
-    
+    console.log(contenders);
     saveContenders()
     generateTournamentBracket(contenders)
 }
@@ -173,9 +173,9 @@ const uploadSavedTornament = () => {
             if(round.home != ''){
                 roundHTML = document.getElementById('home-finals')
                 name = roundHTML.getElementsByTagName('h3')
-                name[0].textContent = round.home.species.name
+                name[0].textContent = round.home.name
                 image = roundHTML.getElementsByTagName('img')
-                image[0].src = round.home.sprites.front_default
+                image[0].src = round.home.img
                 image[0].id = round.home.id
                 image[0].addEventListener('click', finalWinner)
                 addShowStatsListener(image[0], round.home.stats)
@@ -184,9 +184,9 @@ const uploadSavedTornament = () => {
             if(round.away != ''){
                 roundHTML = document.getElementById('away-finals')
                 name = roundHTML.getElementsByTagName('h3')
-                name[0].textContent = round.away.species.name
+                name[0].textContent = round.away.name
                 image = roundHTML.getElementsByTagName('img')
-                image[0].src = round.away.sprites.front_default
+                image[0].src = round.away.img
                 image[0].id = round.away.id
                 image[0].addEventListener('click', finalWinner)
                 addShowStatsListener(image[0], round.away.stats)
@@ -197,20 +197,20 @@ const uploadSavedTornament = () => {
             switch(index){
                 case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7:
                     names = roundHTML.getElementsByClassName('name')
-                    names[0].textContent = round.home.species.name
-                    names[1].textContent = round.away.species.name
+                    names[0].textContent = round.home.name
+                    names[1].textContent = round.away.name
                     break;
             }
 
             if(round.home != ''){
                 //home contender
-                images[0].src = round.home.sprites.front_default
+                images[0].src = round.home.img
                 images[0].id = round.home.id
                 addShowStatsListener(images[0], round.home.stats)
             }
             if(round.away != ''){
                 //Away contender
-                images[1].src = round.away.sprites.front_default
+                images[1].src = round.away.img
                 images[1].id = round.away.id
                 addShowStatsListener(images[1], round.away.stats)
             }
@@ -455,7 +455,7 @@ const saveTornament = () => { // Saves Tournament state
 
 const postNewChamp = (winner) => { // Saves a winner of a tournament in the podium
     let object = {
-        name : winner.species.name
+        name : winner.name
     }
     try{
         fetch('http://localhost:3000/podium',{
