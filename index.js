@@ -339,7 +339,9 @@ const addResetFunctionality = () => {
         contenders = []
 
         let images = document.getElementsByTagName('img')
-        for (const img of images) {
+        for (const oldImg of images) {
+            const img = oldImg.cloneNode(true)
+            oldImg.parentNode.replaceChild(img, oldImg)
             img.src = stock_image
         }
 
