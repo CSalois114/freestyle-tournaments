@@ -1,6 +1,6 @@
 let tournament = {}
 let contenders = []
-let dbSize = 300
+let dbSize = 300 //temp, need real size
 
 const URL_BASE = 'https://pokeapi.co/api/v2/pokemon/'
 
