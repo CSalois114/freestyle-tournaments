@@ -100,36 +100,31 @@ const tournamentStructure = () => { // Generate tournament structure
 const generateTournament = async() => { // Main function: generates tournament structure and gets random pokemons as fighters
      tournamentStructure()
 
-    const contenderIds = []
     while(contenders.length < 16){
         let id = Math.ceil(Math.random() * dbSize)
-        if(!contenderIds.includes(id)){
-            contenderIds.push(id)
+        if(!contenders.find(contender => contender.id == id)){
 
             await fetch(`${URL_BASE}${id}`)
             .then(res => res.json())
-            .then(fighter => {
-                const name =fighter.species.name
-                let object = {
-                    species : {
-                        name : fighter.species.name
-                    },
-                    sprites : {
-                        front_default : fighter.sprites.front_default
-                    },
-                    id : fighter.id,
-                    stats : fighter.stats
-
-                }
-                fighter.species.name = name.charAt(0).toUpperCase() + name.slice(1)
-                contenders.push(object)
-            })
+            .then(fighter => contenders.push(serializePokemon(fighter)))
         }
     } 
     
     saveContenders()
     generateTournamentBracket(contenders)
 }
+
+const serializePokemon = (apiPokemon) => {
+
+    return {
+        id: apiPokemon.id,
+        name: capitalizeString(apiPokemon.species.name),
+        img: apiPokemon.sprites.front_default,
+        stats: apiPokemon.stats
+    }
+}
+
+const capitalizeString = (str) => str.charAt(0).toUpperCase() + str.slice(1)
 
 const generateTournamentBracket = (contenders) => {  // Generates the tournament bracket and fills the object tournament
     let round = 0;
@@ -151,14 +146,14 @@ const fillTournamentHTML = () => {
         images = roundHTML.getElementsByTagName('img')
 
         //home contender
-        names[0].textContent = round.home.species.name
-        images[0].src = round.home.sprites.front_default
+        names[0].textContent = round.home.name
+        images[0].src = round.home.img
         images[0].id = round.home.id
         addShowStatsListener(images[0], round.home.stats)
 
         //Away contender
-        names[1].textContent = round.away.species.name
-        images[1].src = round.away.sprites.front_default
+        names[1].textContent = round.away.name
+        images[1].src = round.away.img
         images[1].id = round.away.id
         addShowStatsListener(images[1], round.away.stats)
         
@@ -247,15 +242,15 @@ const winnerSelected = (event) => {
             if(nextFight == 14){
                 roundHTML = document.getElementById('home-finals')
                 name = roundHTML.getElementsByTagName('h3')
-                name[0].textContent = winner.species.name
+                name[0].textContent = winner.name
                 image = roundHTML.getElementsByTagName('img')
-                image[0].src = winner.sprites.front_default
+                image[0].src = winner.img
                 image[0].id = winner.id
                 image[0].addEventListener('click', finalWinner)
                 addShowStatsListener(image[0], winner.stats)
             }else{
                 image = roundHTML.getElementsByTagName('img')
-                image[0].src = winner.sprites.front_default
+                image[0].src = winner.img
                 image[0].id = winner.id
                 image[0].addEventListener('click', winnerSelected)
                 addShowStatsListener(image[0], winner.stats)
@@ -266,15 +261,15 @@ const winnerSelected = (event) => {
             if(nextFight == 14){
                 roundHTML = document.getElementById('away-finals')
                 name = roundHTML.getElementsByTagName('h3')
-                name[0].textContent = winner.species.name
+                name[0].textContent = winner.name
                 image = roundHTML.getElementsByTagName('img')
-                image[0].src = winner.sprites.front_default
+                image[0].src = winner.img
                 image[0].id = winner.id
                 image[0].addEventListener('click', finalWinner)
                 addShowStatsListener(image[0], winner.stats)
             }else{
                 image = roundHTML.getElementsByTagName('img')
-                image[1].src = winner.sprites.front_default
+                image[1].src = winner.img
                 image[1].id = winner.id
                 image[1].addEventListener('click', winnerSelected)
                 addShowStatsListener(image[1], winner.stats)
@@ -306,8 +301,8 @@ const finalWinner = (event) =>{
         tournament[`fight14`].home.id == selected ? winner = tournament[`fight14`].home : winner = tournament[`fight14`].away
         winnerSpot = document.getElementById('winner')
 
-        winnerSpot.getElementsByTagName('img')[0].src= winner.sprites.front_default;
-        winnerSpot.getElementsByTagName('h2')[1].textContent = winner.species.name
+        winnerSpot.getElementsByTagName('img')[0].src= winner.img;
+        winnerSpot.getElementsByTagName('h2')[1].textContent = winner.name
         
         document.getElementById('away-finals').getElementsByTagName('img')[0].removeEventListener('click', finalWinner)
         document.getElementById('home-finals').getElementsByTagName('img')[0].removeEventListener('click', finalWinner)
@@ -364,12 +359,12 @@ const tournamentResult = () => { // Randomizes the results of each fight and giv
 
         result == 0 ? winner = tournament[`fight${index}`].home : winner = tournament[`fight${index}`].away
         if(index == 14){
-            console.log(`THE WINNER IS: ${winner.species.name}`)
+            console.log(`THE WINNER IS: ${winner.name}`)
 
             winnerSpot = document.getElementById('winner')
 
-            winnerSpot.getElementsByTagName('img')[0].src= winner.sprites.front_default;
-            winnerSpot.getElementsByTagName('h2')[0].textContent = winner.species.name
+            winnerSpot.getElementsByTagName('img')[0].src= winner.img;
+            winnerSpot.getElementsByTagName('h2')[0].textContent = winner.name
             break;
         }
 
@@ -382,12 +377,12 @@ const tournamentResult = () => { // Randomizes the results of each fight and giv
             if(nextFight == 14){
                 round = document.getElementById('home-finals')
                 name = round.getElementsByTagName('h3')
-                name[0].textContent = winner.species.name
+                name[0].textContent = winner.name
                 image = round.getElementsByTagName('img')
-                image[0].src = winner.sprites.front_default
+                image[0].src = winner.img
             }else{
                 image = round.getElementsByTagName('img')
-                image[0].src = winner.sprites.front_default
+                image[0].src = winner.img
                 image[0].id = winner.id
             }
         }else{
@@ -396,12 +391,12 @@ const tournamentResult = () => { // Randomizes the results of each fight and giv
             if(nextFight == 14){
                 round = document.getElementById('away-finals')
                 name = round.getElementsByTagName('h3')
-                name[0].textContent = winner.species.name
+                name[0].textContent = winner.name
                 image = round.getElementsByTagName('img')
-                image[0].src = winner.sprites.front_default
+                image[0].src = winner.img
             }else{
                 image = round.getElementsByTagName('img')
-                image[1].src = winner.sprites.front_default
+                image[1].src = winner.img
                 image[1].id = winner.id
             }
         }
