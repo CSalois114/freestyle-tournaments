@@ -337,6 +337,8 @@ const addResetFunctionality = () => {
     button.addEventListener('click', () => {
         tournament = {}
         contenders = []
+        document.getElementsByTagName('h2')[1].textContent = ''
+        document.querySelectorAll('h3').forEach(elm => elm.textContent = '')
 
         let images = document.getElementsByTagName('img')
         for (const oldImg of images) {
