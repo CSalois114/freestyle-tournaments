@@ -109,17 +109,24 @@ const generateTournament = async() => { // Main function: generates tournament s
             .then(fighter => contenders.push(serializePokemon(fighter)))
         }
     } 
+    console.log(contenders)
     saveContenders()
     generateTournamentBracket(contenders)
 }
 
 const serializePokemon = (apiPokemon) => {
-
+    const statsArray = apiPokemon.stats.map(stat => {
+        return {
+            name: stat.stat.name,
+             value: stat.base_stat
+        }
+    })
+    
     return {
         id: apiPokemon.id,
         name: capitalizeString(apiPokemon.species.name),
         img: apiPokemon.sprites.front_default,
-        stats: apiPokemon.stats
+        stats: statsArray
     }
 }
 
@@ -320,7 +327,7 @@ const addShowStatsListener = (imgElm, stats) => {
 
     stats.forEach(stat => {
         const li = document.createElement('li')
-        li.textContent = `${stat.stat.name}: ${stat.base_stat}`
+        li.textContent = `${stat.name}: ${stat.value}`
         statsList.append(li)
     })
     
