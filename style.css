@@ -56,7 +56,7 @@ body {
   text-align: left;
 }
 
-.away .stats{
+.right .stats{
   margin-top: -50px;
 }
 
@@ -73,7 +73,7 @@ img {
   color: red;
 }
 
-.away {
+.right {
   text-align: right;
 }
 
