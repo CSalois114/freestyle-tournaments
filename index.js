@@ -237,7 +237,6 @@ const winnerSelected = (e) => {
     const roundNumber = e.target.parentNode.parentNode.id.match(/\d+/)[0]
     const round = tournament[`fight${roundNumber}`]
     const nextRound = tournament[`fight${round.next}`]
-    
     if(round.status == 'closed'){
         const winner = (round.home.img == e.target.src ?  "home" : "away");
 

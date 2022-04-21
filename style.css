@@ -78,6 +78,7 @@ img {
   height: var(--competitor-img-size);
   vertical-align: middle;
   display: inline-block;
+  white-space: nowrap;
 }
 
 #bracket {
@@ -120,6 +121,7 @@ img {
 
 #finals {
   min-width: 313px;
+  max-width: 313px;
   margin-top: 317px;
 }
 
