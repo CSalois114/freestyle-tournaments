@@ -11,10 +11,12 @@
     <div id="title">
       <h1>Freestyle Tournaments</h1>
     </div>
-    <div id="winner">
-      <h2>WINNER!</h2>
-      <img src="https://pic.onlinewebfonts.com/svg/img_30754.png">
-      <h2></h2>
+    <div id="round15">
+      <div id="winner">
+        <h2>WINNER!</h2>
+        <img class="winner" src="https://pic.onlinewebfonts.com/svg/img_30754.png">
+        <h2 id="winner-name"></h2>
+      </div>
     </div>
     <div id="reset">
       <button id="reset-button" type="button">Reset</button>
@@ -95,21 +97,19 @@
         </div>
       </div>
       <div id="finals">
-        <div id="round14">
-          <div class="left finals" id="home-finals">
-            <div class="competitor">
-              <img class="home" src="https://pic.onlinewebfonts.com/svg/img_30754.png">
-              <h3></h3>
-            </div>
+        <div id="round14" class="pair">
+          <div class="left finals competitor" id="home-finals">
+            <img class="home" src="https://pic.onlinewebfonts.com/svg/img_30754.png">
+            <h3 id="home-name"></h3>
           </div>
           <div id="vs">
             <h1 id="vs-text">VS</h1>
           </div>
-          <div class="right finals" id="away-finals">
-            <div class="competitor">
-              <img class="away" src="https://pic.onlinewebfonts.com/svg/img_30754.png">
-              <h3></h3>
-            </div>
+          <div class="right finals competitor" id="away-finals">
+          
+            <img class="away" src="https://pic.onlinewebfonts.com/svg/img_30754.png">
+            <h3 id="away-name"></h3>
+          
           </div>
         </div>
       </div>

@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', async() => {
 // Generate tournament structure
 const tournamentStructure = () => { 
     let roundIndex, fightingFor;
-    for (let index  = 0; index < 15; index++) {
+    for (let index  = 0; index < 16; index++) {
         switch(index){
             case 0: 
                 roundIndex = 8    
@@ -81,6 +81,10 @@ const tournamentStructure = () => {
                 fightingFor = 'away'
                 roundIndex = 14
                 break;
+            case 14:
+                fightingFor = 'winner'
+                roundIndex = 15
+                break
             default:
                 roundIndex = -1
                 break;    
@@ -94,6 +98,7 @@ const tournamentStructure = () => {
             clickable : true,
         }
     }
+    console.log(tournament)
 }
 
 // Main function: generates tournament structure and gets random pokemon as fighters
@@ -229,51 +234,38 @@ const uploadSavedTournament = () => {
     } 
 }
 
-const winnerSelected = (event) => {
-    let image;
-
-    const roundNumber = event.target.parentNode.parentNode.id.match(/\d+/)[0]
+const winnerSelected = (e) => {
+    const roundNumber = e.target.parentNode.parentNode.id.match(/\d+/)[0]
     const round = tournament[`fight${roundNumber}`]
     const nextRoundNumber = round.nextFight
     const nextRound = tournament[`fight${nextRoundNumber}`]
+    const roundHTML = document.getElementById(`round${nextRoundNumber}`)
 
     if(round.status == 'closed'){
-
-        const winner = (round.home.id == event.target.id) ?  "home" : "away"
-        let roundHTML = document.getElementById(`round${nextRoundNumber}`)
+        const winner = (round.home.id == e.target.id) ?  "home" : "away";
         
-        nextRound[round.placement] = round[winner]
+        const image = roundHTML.querySelector(`.${round.placement}`);
+        image.src = round[winner].img;
+        image.addEventListener('click', winnerSelected);
+        addShowStatsListener(image, round[winner].stats);
         
-        if(nextRoundNumber == 14){
-            roundHTML = document.getElementById(`${round.placement}-finals`)
-            roundHTML.querySelector('h3').textContent = round[winner].name
-            image = roundHTML.querySelector('img')
-            image.src = round[winner].img
-            image.id = round[winner].id
-            image.addEventListener('click', finalWinner)
-            addShowStatsListener(image, round[winner].stats)
-        }else{
-            image = roundHTML.querySelector(`.${round.placement}`)
-            console.log(image)
-            image.src = round[winner].img
-            image.id = round[winner].id
-            image.addEventListener('click', winnerSelected)
-            addShowStatsListener(image, round[winner].stats)
+        if(nextRoundNumber >= 14){
+            document.getElementById(`${round.placement}-name`)
+            .textContent = round[winner].name;
         }
-
-        if(nextRound.home != '' && nextRound.away != ''){
-            nextRound.status = 'closed'
-        }
-
-        let images = event.target.parentNode.parentNode.getElementsByTagName('img')
-        for (const oneImage of images) {
-            oneImage.removeEventListener('click', winnerSelected)
-        }
-        round.clickable = false
-        //console.log(tournament)
-        saveTournament()
+        
+        nextRound[round.placement] = round[winner];
+        nextRound.home && nextRound.away && (nextRound.status = 'closed');
+    
+        e.target.closest('.pair').querySelectorAll('img').forEach(img => {
+            img.removeEventListener('click', winnerSelected);
+        });
+        
+        round.clickable = false;
+        nextRoundNumber == 15 && postNewChamp(round[winner]);
+        saveTournament();
     }else{
-        alert('Please select opponent before advancing')
+        alert('Please select opponent before advancing');
     }
 
 }
