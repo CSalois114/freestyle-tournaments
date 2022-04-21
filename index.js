@@ -261,27 +261,6 @@ const winnerSelected = (e) => {
     }else{
         alert('Please select opponent before advancing');
     }
-
-}
-
-const finalWinner = (event) =>{
-    let winner;
-    let selected = event.target.id
-    if(tournament['fight14'].status == 'closed'){
-
-        tournament[`fight14`].home.id == selected ? winner = tournament[`fight14`].home : winner = tournament[`fight14`].away
-        winnerSpot = document.getElementById('winner')
-
-        winnerSpot.getElementsByTagName('img')[0].src= winner.img;
-        winnerSpot.getElementsByTagName('h2')[1].textContent = winner.name
-        
-        document.getElementById('away-finals').getElementsByTagName('img')[0].removeEventListener('click', finalWinner)
-        document.getElementById('home-finals').getElementsByTagName('img')[0].removeEventListener('click', finalWinner)
-
-        postNewChamp(winner)
-    }else{
-        alert('Please select opponent before advancing')
-    }
 }
 
 const addShowStatsListener = (imgElm, stats) => {
