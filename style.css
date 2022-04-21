@@ -66,10 +66,7 @@ img {
 }
 
 #vs {
-  max-width: 0;
-  margin-top: 330px;
-  margin-left: -20px;
-  margin-right: 20px;
+  margin: 0 61px 0 61px;
   color: red;
 }
 
@@ -91,6 +88,7 @@ img {
 }
 .octofinals {
   min-width: 250px;
+  max-width: 250px;
 }
 
 .octofinals .bottom {
@@ -120,7 +118,11 @@ img {
   margin-bottom: 369px;
 }
 
-.finals {
+#finals {
+  min-width: 313px;
   margin-top: 317px;
-  min-width: 157px;
+}
+
+#finals > * {
+  display: flex;
 }
