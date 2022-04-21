@@ -93,8 +93,8 @@ const tournamentStructure = () => {
             home: '',
             away: '',
             status: 'open',
-            nextFight: roundIndex,
-            placement: fightingFor,
+            next: roundIndex,
+            team: fightingFor,
             clickable : true,
         }
     }
@@ -236,32 +236,28 @@ const uploadSavedTournament = () => {
 const winnerSelected = (e) => {
     const roundNumber = e.target.parentNode.parentNode.id.match(/\d+/)[0]
     const round = tournament[`fight${roundNumber}`]
-    const nextRoundNumber = round.nextFight
-    const nextRound = tournament[`fight${nextRoundNumber}`]
-    const roundHTML = document.getElementById(`round${nextRoundNumber}`)
+    const nextRound = tournament[`fight${round.next}`]
     
     if(round.status == 'closed'){
         const winner = (round.home.img == e.target.src ?  "home" : "away");
-            
-        const image = roundHTML.querySelector(`.${round.placement}`);
-        image.src = round[winner].img;
-        image.addEventListener('click', winnerSelected);
-        addShowStatsListener(image, round[winner].stats);
-        
-        if(nextRoundNumber >= 14){
-            document.getElementById(`${round.placement}-name`)
-            .textContent = round[winner].name;
-        }
-        
-        nextRound[round.placement] = round[winner];
-        nextRound.home && nextRound.away && (nextRound.status = 'closed');
-    
+
+        const img = document.querySelector(`#round${round.next} .${round.team}`);
+        img.src = round[winner].img;
+        img.addEventListener('click', winnerSelected);
+        addShowStatsListener(img, round[winner].stats);
         e.target.closest('.pair').querySelectorAll('img').forEach(img => {
             img.removeEventListener('click', winnerSelected);
         });
-        
+
+        if(round.next >= 14){
+            document.getElementById(`${round.team}-name`)
+            .textContent = round[winner].name;
+        } 
+
+        nextRound[round.team] = round[winner];
+        nextRound.home && nextRound.away && (nextRound.status = 'closed');
         round.clickable = false;
-        nextRoundNumber == 15 && postNewChamp(round[winner]);
+        round.next == 15 && postNewChamp(round[winner]);
         saveTournament();
     }else{
         alert('Please select opponent before advancing');
@@ -331,11 +327,11 @@ const addResetFunctionality = () => {
 //Test
 /*
 const tournamentResult = () => { // Randomizes the results of each fight and gives a final result
-    let result, nextFight, winner, round, image, name
+    let result, next, winner, round, image, name
     for (let index = 0; index < 15; index++) {
         result =  Math.floor(Math.random() * 2 )
 
-        nextFight = tournament[`fight${index}`].nextFight
+        next = tournament[`fight${index}`].next
 
         result == 0 ? winner = tournament[`fight${index}`].home : winner = tournament[`fight${index}`].away
         if(index == 14){
@@ -348,13 +344,13 @@ const tournamentResult = () => { // Randomizes the results of each fight and giv
             break;
         }
 
-        round = document.getElementById(`round${nextFight}`)
+        round = document.getElementById(`round${next}`)
         
 
-        if(tournament[`fight${nextFight}`].home == ''){
-            tournament[`fight${nextFight}`].home = winner
+        if(tournament[`fight${next}`].home == ''){
+            tournament[`fight${next}`].home = winner
 
-            if(nextFight == 14){
+            if(next == 14){
                 round = document.getElementById('home-finals')
                 name = round.getElementsByTagName('h3')
                 name[0].textContent = winner.name
@@ -366,9 +362,9 @@ const tournamentResult = () => { // Randomizes the results of each fight and giv
                 image[0].id = winner.id
             }
         }else{
-            tournament[`fight${nextFight}`].away = winner
+            tournament[`fight${next}`].away = winner
 
-            if(nextFight == 14){
+            if(next == 14){
                 round = document.getElementById('away-finals')
                 name = round.getElementsByTagName('h3')
                 name[0].textContent = winner.name
@@ -381,8 +377,8 @@ const tournamentResult = () => { // Randomizes the results of each fight and giv
             }
         }
 
-        if(tournament[`fight${nextFight}`].home != '' && tournament[`fight${nextFight}`].away != ''){
-            tournament[`fight${nextFight}`].status = 'closed'
+        if(tournament[`fight${next}`].home != '' && tournament[`fight${next}`].away != ''){
+            tournament[`fight${next}`].status = 'closed'
         }
         
     }
