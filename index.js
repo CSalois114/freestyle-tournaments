@@ -186,7 +186,7 @@ const uploadSavedTournament = () => {
                 image = roundHTML.getElementsByTagName('img')
                 image[0].src = round.home.img
                 image[0].id = round.home.id
-                image[0].addEventListener('click', finalWinner)
+                image[0].addEventListener('click', winnerSelected)
                 addShowStatsListener(image[0], round.home.stats)
             }
 
@@ -197,7 +197,7 @@ const uploadSavedTournament = () => {
                 image = roundHTML.getElementsByTagName('img')
                 image[0].src = round.away.img
                 image[0].id = round.away.id
-                image[0].addEventListener('click', finalWinner)
+                image[0].addEventListener('click', winnerSelected)
                 addShowStatsListener(image[0], round.away.stats)
             }
         }else{
