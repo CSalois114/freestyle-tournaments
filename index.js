@@ -176,7 +176,7 @@ const uploadSavedTournament = () => {
         round = tournament[`fight${index}`]
         if(index == 14){
             if(round.home != ''){
-                roundHTML = document.getElementById('left-finals')
+                roundHTML = document.getElementById('home-finals')
                 name = roundHTML.getElementsByTagName('h3')
                 name[0].textContent = round.home.name
                 image = roundHTML.getElementsByTagName('img')
@@ -187,7 +187,7 @@ const uploadSavedTournament = () => {
             }
 
             if(round.away != ''){
-                roundHTML = document.getElementById('right-finals')
+                roundHTML = document.getElementById('away-finals')
                 name = roundHTML.getElementsByTagName('h3')
                 name[0].textContent = round.away.name
                 image = roundHTML.getElementsByTagName('img')
@@ -230,66 +230,46 @@ const uploadSavedTournament = () => {
 }
 
 const winnerSelected = (event) => {
-    let winner, name, image;
-    let selected = event.target.id
+    let image;
 
-    let round = event.target.parentNode.parentNode.id.match(/\d+/)[0]
-    let nextFight = tournament[`fight${round}`].nextFight
+    const roundNumber = event.target.parentNode.parentNode.id.match(/\d+/)[0]
+    const round = tournament[`fight${roundNumber}`]
+    const nextRoundNumber = round.nextFight
+    const nextRound = tournament[`fight${nextRoundNumber}`]
 
-    if(tournament[`fight${round}`].status == 'closed'){
+    if(round.status == 'closed'){
 
-        tournament[`fight${round}`].home.id == selected ? winner = tournament[`fight${round}`].home : winner = tournament[`fight${round}`].away
-        roundHTML = document.getElementById(`round${nextFight}`)
+        const winner = (round.home.id == event.target.id) ?  "home" : "away"
+        let roundHTML = document.getElementById(`round${nextRoundNumber}`)
         
-        if(tournament[`fight${round}`].placement == 'home'){
-            tournament[`fight${nextFight}`].home = winner
-
-            if(nextFight == 14){
-                roundHTML = document.getElementById('left-finals')
-                name = roundHTML.getElementsByTagName('h3')
-                name[0].textContent = winner.name
-                image = roundHTML.getElementsByTagName('img')
-                image[0].src = winner.img
-                image[0].id = winner.id
-                image[0].addEventListener('click', finalWinner)
-                addShowStatsListener(image[0], winner.stats)
-            }else{
-                image = roundHTML.getElementsByTagName('img')
-                image[0].src = winner.img
-                image[0].id = winner.id
-                image[0].addEventListener('click', winnerSelected)
-                addShowStatsListener(image[0], winner.stats)
-            }
+        nextRound[round.placement] = round[winner]
+        
+        if(nextRoundNumber == 14){
+            roundHTML = document.getElementById(`${round.placement}-finals`)
+            roundHTML.querySelector('h3').textContent = round[winner].name
+            image = roundHTML.querySelector('img')
+            image.src = round[winner].img
+            image.id = round[winner].id
+            image.addEventListener('click', finalWinner)
+            addShowStatsListener(image, round[winner].stats)
         }else{
-            tournament[`fight${nextFight}`].away = winner
-
-            if(nextFight == 14){
-                roundHTML = document.getElementById('right-finals')
-                name = roundHTML.getElementsByTagName('h3')
-                name[0].textContent = winner.name
-                image = roundHTML.getElementsByTagName('img')
-                image[0].src = winner.img
-                image[0].id = winner.id
-                image[0].addEventListener('click', finalWinner)
-                addShowStatsListener(image[0], winner.stats)
-            }else{
-                image = roundHTML.getElementsByTagName('img')
-                image[1].src = winner.img
-                image[1].id = winner.id
-                image[1].addEventListener('click', winnerSelected)
-                addShowStatsListener(image[1], winner.stats)
-            }
+            image = roundHTML.querySelector(`.${round.placement}`)
+            console.log(image)
+            image.src = round[winner].img
+            image.id = round[winner].id
+            image.addEventListener('click', winnerSelected)
+            addShowStatsListener(image, round[winner].stats)
         }
 
-        if(tournament[`fight${nextFight}`].home != '' && tournament[`fight${nextFight}`].away != ''){
-            tournament[`fight${nextFight}`].status = 'closed'
+        if(nextRound.home != '' && nextRound.away != ''){
+            nextRound.status = 'closed'
         }
 
         let images = event.target.parentNode.parentNode.getElementsByTagName('img')
         for (const oneImage of images) {
             oneImage.removeEventListener('click', winnerSelected)
         }
-        tournament[`fight${round}`].clickable = false
+        round.clickable = false
         //console.log(tournament)
         saveTournament()
     }else{
@@ -309,8 +289,8 @@ const finalWinner = (event) =>{
         winnerSpot.getElementsByTagName('img')[0].src= winner.img;
         winnerSpot.getElementsByTagName('h2')[1].textContent = winner.name
         
-        document.getElementById('right-finals').getElementsByTagName('img')[0].removeEventListener('click', finalWinner)
-        document.getElementById('left-finals').getElementsByTagName('img')[0].removeEventListener('click', finalWinner)
+        document.getElementById('away-finals').getElementsByTagName('img')[0].removeEventListener('click', finalWinner)
+        document.getElementById('home-finals').getElementsByTagName('img')[0].removeEventListener('click', finalWinner)
 
         postNewChamp(winner)
     }else{
@@ -384,7 +364,7 @@ const tournamentResult = () => { // Randomizes the results of each fight and giv
             tournament[`fight${nextFight}`].home = winner
 
             if(nextFight == 14){
-                round = document.getElementById('left-finals')
+                round = document.getElementById('home-finals')
                 name = round.getElementsByTagName('h3')
                 name[0].textContent = winner.name
                 image = round.getElementsByTagName('img')
@@ -398,7 +378,7 @@ const tournamentResult = () => { // Randomizes the results of each fight and giv
             tournament[`fight${nextFight}`].away = winner
 
             if(nextFight == 14){
-                round = document.getElementById('right-finals')
+                round = document.getElementById('away-finals')
                 name = round.getElementsByTagName('h3')
                 name[0].textContent = winner.name
                 image = round.getElementsByTagName('img')
