@@ -9,7 +9,7 @@ const URL_BASE = 'https://pokeapi.co/api/v2/pokemon/'
 document.addEventListener('DOMContentLoaded', async() => {
     await checkExistingTournament()
     
-    if(tournament[0]) {
+    if(tournament.hasOwnProperty('fight1')) {
         retrieveContenders()
         uploadSavedTournament()   
     } else {
