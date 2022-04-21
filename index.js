@@ -98,7 +98,6 @@ const tournamentStructure = () => {
             clickable : true,
         }
     }
-    console.log(tournament)
 }
 
 // Main function: generates tournament structure and gets random pokemon as fighters
@@ -240,10 +239,10 @@ const winnerSelected = (e) => {
     const nextRoundNumber = round.nextFight
     const nextRound = tournament[`fight${nextRoundNumber}`]
     const roundHTML = document.getElementById(`round${nextRoundNumber}`)
-
+    
     if(round.status == 'closed'){
-        const winner = (round.home.id == e.target.id) ?  "home" : "away";
-        
+        const winner = (round.home.img == e.target.src ?  "home" : "away");
+            
         const image = roundHTML.querySelector(`.${round.placement}`);
         image.src = round[winner].img;
         image.addEventListener('click', winnerSelected);
