@@ -148,37 +148,20 @@ const generateTournamentBracket = (contenders) => {
     fillTournamentHTML()
 }
 
+//places the contenders in the starting spots
 const fillTournamentHTML = () => {
-    // tournament.slice(0, 8).forEach((round, i) => {
-    //     const roundDiv = document.getElementById(`round${i}`);
-    //     ['home','away'].forEach(place => {
-            
-    //     })
-    // })
-    
     for (let index = 0; index < 8; index++) {
-        const round = tournament[index]
-        const roundHTML = document.getElementById(`round${index}`)
-        const names = roundHTML.getElementsByClassName('name')
-        const images = roundHTML.getElementsByTagName('img')
-
-        //home contender
-        names[0].textContent = round.home.name
-        images[0].src = round.home.img
-        addShowStatsListener(images[0], round.home.stats)
-        
-        //Away contender
-        names[1].textContent = round.away.name
-        images[1].src = round.away.img
-        
-        addShowStatsListener(images[1], round.away.stats)
-        
-        for (const oneImage of images) {
-            oneImage.addEventListener('click', winnerSelected);
-            oneImage.style.opacity = 1;
-        }
-    }
-    
+        const round = tournament[index];
+        const roundDiv = document.getElementById(`round${index}`);
+        ['home', 'away'].forEach(team => {
+            roundDiv.querySelector(`.name-${team}`).textContent = round[team].name;
+            const img = roundDiv.querySelector(`img.${team}`);
+            img.src = round[team].img;
+            img.style.opacity = 1;
+            addShowStatsListener(img, round[team].stats);
+            round.clickable && img.addEventListener('click', winnerSelected);
+        })
+    }  
     saveTournament()
 }
 
