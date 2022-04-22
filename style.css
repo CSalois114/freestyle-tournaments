@@ -82,6 +82,7 @@ body {
 img {
   max-width: var(--competitor-img-size);
   max-height: var(--competitor-img-size);
+  opacity: 0;
 }
 
 #vs {

@@ -159,12 +159,14 @@ const fillTournamentHTML = () => {
         names[0].textContent = round.home.name
         images[0].src = round.home.img
         images[0].id = round.home.id
+        images[0].style.opacity = 1;
         addShowStatsListener(images[0], round.home.stats)
-
+        
         //Away contender
         names[1].textContent = round.away.name
         images[1].src = round.away.img
         images[1].id = round.away.id
+        images[1].style.opacity = 1;
         addShowStatsListener(images[1], round.away.stats)
         
         for (const oneImage of images) {
@@ -186,6 +188,7 @@ const uploadSavedTournament = () => {
                 name[0].textContent = round.home.name
                 image = roundHTML.getElementsByTagName('img')
                 image[0].src = round.home.img
+                image[0].style.opacity = 1;
                 image[0].id = round.home.id
                 image[0].addEventListener('click', winnerSelected)
                 addShowStatsListener(image[0], round.home.stats)
@@ -197,6 +200,7 @@ const uploadSavedTournament = () => {
                 name[0].textContent = round.away.name
                 image = roundHTML.getElementsByTagName('img')
                 image[0].src = round.away.img
+                image[0].style.opacity = 1;
                 image[0].id = round.away.id
                 image[0].addEventListener('click', winnerSelected)
                 addShowStatsListener(image[0], round.away.stats)
@@ -215,18 +219,23 @@ const uploadSavedTournament = () => {
             if(round.home != ''){
                 //home contender
                 images[0].src = round.home.img
+                images[0].style.opacity = 1;
                 images[0].id = round.home.id
                 addShowStatsListener(images[0], round.home.stats)
             }
             if(round.away != ''){
                 //Away contender
                 images[1].src = round.away.img
+                images[1].style.opacity = 1;
                 images[1].id = round.away.id
                 addShowStatsListener(images[1], round.away.stats)
             }
             if(round.clickable){
                 for (const oneImage of images) {
-                    oneImage.addEventListener('click', winnerSelected)
+                    if(oneImage.src != defaultImg) {
+                        oneImage.addEventListener('click', winnerSelected)
+                        oneImage.style.opacity = 1;  
+                    }
                 }
             }
         }
@@ -242,6 +251,7 @@ const winnerSelected = (e) => {
 
         const img = document.querySelector(`#round${round.next} .${round.team}`);
         img.src = round[winner].img;
+        img.style.opacity = 1;
         img.addEventListener('click', winnerSelected);
         addShowStatsListener(img, round[winner].stats);
         e.target.closest('.pair').querySelectorAll('img').forEach(img => {
@@ -299,6 +309,7 @@ const addResetFunctionality = () => {
             const img = oldImg.cloneNode(true)
             oldImg.parentNode.replaceChild(img, oldImg)
             img.src = defaultImg
+            img.style.opacity = 0;
         }
 
         const animatedElm = document.getElementById('winner');
