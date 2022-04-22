@@ -1,10 +1,8 @@
 let tournament = {}
 let contenders = []
 
-let dbSize = 300 //temp, need real size
 const defaultImg = 'https://pic.onlinewebfonts.com/svg/img_30754.png'
-
-const URL_BASE = 'https://pokeapi.co/api/v2/pokemon/'
+const URL_BASE = 'https://pokeapi.co/api/v2/pokemon'
 
 document.addEventListener('DOMContentLoaded', async() => {
     await checkExistingTournament()
@@ -102,18 +100,21 @@ const tournamentStructure = () => {
 
 // Main function: generates tournament structure and gets random pokemon as fighters
 const generateTournament = async() => { 
-     tournamentStructure()
-
+    tournamentStructure()
+    const totalPokemon = await fetch(`${URL_BASE}-species/?limit=0`)
+    .then(res => res.json())
+    .then(data => data.count);
+     
     while(contenders.length < 16){
-        let id = Math.ceil(Math.random() * dbSize)
+        let id = Math.ceil(Math.random() * totalPokemon);
         if(!contenders.find(contender => contender.id == id)){
-            await fetch(`${URL_BASE}${id}`)
+            await fetch(`${URL_BASE}/${id}`)
             .then(res => res.json())
-            .then(fighter => contenders.push(serializePokemon(fighter)))
+            .then(fighter => contenders.push(serializePokemon(fighter)));
         }
     } 
-    saveContenders()
-    generateTournamentBracket(contenders)
+    saveContenders();
+    generateTournamentBracket(contenders);
 }
 
 // converts pokemon api object to basic contender object
