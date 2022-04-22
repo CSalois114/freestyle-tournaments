@@ -256,7 +256,10 @@ const winnerSelected = (e) => {
         nextRound[round.team] = round[winner];
         nextRound.home && nextRound.away && (nextRound.status = 'closed');
         round.clickable = false;
-        round.next == 15 && postNewChamp(round[winner]);
+        if(round.next == 15) {
+            postNewChamp(round[winner]);
+            document.getElementById('winner').style.animationPlayState = "running"
+        }
         saveTournament();
     }else{
         alert('Please select opponent before advancing');
@@ -297,6 +300,11 @@ const addResetFunctionality = () => {
             oldImg.parentNode.replaceChild(img, oldImg)
             img.src = defaultImg
         }
+
+        const animatedElm = document.getElementById('winner');
+        animatedElm.style.animation = 'none';
+        animatedElm.offsetHeight;
+        animatedElm.style.animation = null;
 
         generateTournament()
     })
