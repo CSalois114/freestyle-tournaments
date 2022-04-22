@@ -82,6 +82,10 @@ img {
   white-space: nowrap;
 }
 
+.finals .name {
+  width: 0;
+}
+
 #bracket {
   background-image: url('assets/bracket.png');
   background-repeat: no-repeat;
