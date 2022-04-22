@@ -1,4 +1,4 @@
-let tournament = {}
+let tournament = []
 let contenders = []
 
 const defaultImg = 'https://pic.onlinewebfonts.com/svg/img_30754.png'
@@ -150,22 +150,20 @@ const generateTournamentBracket = (contenders) => {
 
 const fillTournamentHTML = () => {
     for (let index = 0; index < 8; index++) {
-        let round = tournament[`fight${index}`]
-        let roundHTML = document.getElementById(`round${index}`)
-        let names = roundHTML.getElementsByClassName('name')
-        let images = roundHTML.getElementsByTagName('img')
+        const round = tournament[`fight${index}`]
+        const roundHTML = document.getElementById(`round${index}`)
+        const names = roundHTML.getElementsByClassName('name')
+        const images = roundHTML.getElementsByTagName('img')
 
         //home contender
         names[0].textContent = round.home.name
         images[0].src = round.home.img
-        images[0].id = round.home.id
         images[0].style.opacity = 1;
         addShowStatsListener(images[0], round.home.stats)
         
         //Away contender
         names[1].textContent = round.away.name
         images[1].src = round.away.img
-        images[1].id = round.away.id
         images[1].style.opacity = 1;
         addShowStatsListener(images[1], round.away.stats)
         
@@ -299,7 +297,7 @@ const addShowStatsListener = (imgElm, stats) => {
 const addResetFunctionality = () => {
     const button = document.getElementById("reset-button")
     button.addEventListener('click', () => {
-        tournament = {}
+        tournament = []
         contenders = []
         document.getElementsByTagName('h2')[1].textContent = ''
         document.querySelectorAll('h3').forEach(elm => elm.textContent = '')
