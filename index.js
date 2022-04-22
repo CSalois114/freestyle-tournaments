@@ -1,4 +1,4 @@
-let tournament = []
+let tournament = {}
 let contenders = []
 
 const defaultImg = 'https://pic.onlinewebfonts.com/svg/img_30754.png'
@@ -7,7 +7,7 @@ const URL_BASE = 'https://pokeapi.co/api/v2/pokemon'
 document.addEventListener('DOMContentLoaded', async() => {
     await checkExistingTournament()
     
-    if(tournament.hasOwnProperty('fight1')) {
+    if(tournament[0]) {
         retrieveContenders()
         uploadSavedTournament()   
     } else {
@@ -87,7 +87,7 @@ const tournamentStructure = () => {
                 roundIndex = -1
                 break;    
         }
-        tournament[`fight${index}`]= {
+        tournament[index] = {
             home: '',
             away: '',
             status: 'open',
@@ -139,7 +139,7 @@ const capitalizeString = (str) => str.charAt(0).toUpperCase() + str.slice(1)
 // Generates the tournament bracket and fills the object tournament
 const generateTournamentBracket = (contenders) => {  
     for (let i = 0; i < contenders.length; i += 2) {
-        Object.assign(tournament[`fight${i/2}`], {
+        Object.assign(tournament[i/2], {
             home: contenders[i],
             away: contenders[i + 1],
             status:'closed'
@@ -149,8 +149,15 @@ const generateTournamentBracket = (contenders) => {
 }
 
 const fillTournamentHTML = () => {
+    // tournament.slice(0, 8).forEach((round, i) => {
+    //     const roundDiv = document.getElementById(`round${i}`);
+    //     ['home','away'].forEach(place => {
+            
+    //     })
+    // })
+    
     for (let index = 0; index < 8; index++) {
-        const round = tournament[`fight${index}`]
+        const round = tournament[index]
         const roundHTML = document.getElementById(`round${index}`)
         const names = roundHTML.getElementsByClassName('name')
         const images = roundHTML.getElementsByTagName('img')
@@ -158,17 +165,17 @@ const fillTournamentHTML = () => {
         //home contender
         names[0].textContent = round.home.name
         images[0].src = round.home.img
-        images[0].style.opacity = 1;
         addShowStatsListener(images[0], round.home.stats)
         
         //Away contender
         names[1].textContent = round.away.name
         images[1].src = round.away.img
-        images[1].style.opacity = 1;
+        
         addShowStatsListener(images[1], round.away.stats)
         
         for (const oneImage of images) {
-            oneImage.addEventListener('click', winnerSelected)
+            oneImage.addEventListener('click', winnerSelected);
+            oneImage.style.opacity = 1;
         }
     }
     
@@ -178,7 +185,7 @@ const fillTournamentHTML = () => {
 const uploadSavedTournament = () => {
     let name
     for (let index = 0; index < 15; index++) {
-        round = tournament[`fight${index}`]
+        round = tournament[index]
         if(index == 14){
             if(round.home != ''){
                 roundHTML = document.getElementById('home-finals')
@@ -242,8 +249,8 @@ const uploadSavedTournament = () => {
 
 const winnerSelected = (e) => {
     const roundNumber = e.target.parentNode.parentNode.id.match(/\d+/)[0]
-    const round = tournament[`fight${roundNumber}`]
-    const nextRound = tournament[`fight${round.next}`]
+    const round = tournament[roundNumber]
+    const nextRound = tournament[round.next]
     if(round.status == 'closed'){
         const winner = (round.home.img == e.target.src ?  "home" : "away");
 
@@ -297,7 +304,7 @@ const addShowStatsListener = (imgElm, stats) => {
 const addResetFunctionality = () => {
     const button = document.getElementById("reset-button")
     button.addEventListener('click', () => {
-        tournament = []
+        tournament = {}
         contenders = []
         document.getElementsByTagName('h2')[1].textContent = ''
         document.querySelectorAll('h3').forEach(elm => elm.textContent = '')
