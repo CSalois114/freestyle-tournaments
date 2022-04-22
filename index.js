@@ -229,7 +229,6 @@ const uploadSavedTournament = () => {
                 }
             }
         }
-
     } 
 }
 
@@ -267,7 +266,7 @@ const addShowStatsListener = (imgElm, stats) => {
     const statsList = document.createElement('ul')
     statsList.classList.add("stats")
     statsList.style.display = 'none'
-    imgElm.parentElement.append(statsList)
+    imgElm.parentElement.prepend(statsList)
 
     stats.forEach(stat => {
         const li = document.createElement('li')

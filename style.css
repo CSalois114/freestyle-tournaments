@@ -47,7 +47,7 @@ body {
   position: absolute;
   border: 3px solid black;
   padding: 0px 5px 5px 20px;
-  margin-top: -72px;
+  margin-top: 55px;
   margin-left: 75px;
   background-color: darkslategray;
   border-radius: 10px;
@@ -56,8 +56,9 @@ body {
   text-align: left;
 }
 
-.right .stats{
-  margin-top: -50px;
+.octofinals.right  .stats{
+  margin-top: 75px;
+  margin-left: calc(235px - max-content);
 }
 
 img {
@@ -100,8 +101,8 @@ img {
   margin: -43px 0px 3px 0px;
 }
 
-.quarterfinals .pair.bottom .top img{
-  margin-top: 122px;
+.quarterfinals .competitor.bottom img{
+  margin-bottom: 122px;
 }
 
 .quarterfinals .competitor.top img {
@@ -109,14 +110,24 @@ img {
 }
 
 .quarterfinals {
-  min-width: 86px;
+  padding-left: 11px;
   margin-top: 28px;
 }
 
+.left.quarterfinals {
+  padding-left: 0px;
+  padding-right: 11px;
+}
+
 .semifinals .competitor {
-  min-width: 107px;
+  padding-left: 32px;
   margin-top: 135px;
   margin-bottom: 369px;
+}
+
+.left.semifinals .competitor {
+  padding-right: 32px;
+  padding-left: 0px;
 }
 
 #finals {
