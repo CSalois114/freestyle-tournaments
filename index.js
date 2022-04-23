@@ -12,81 +12,15 @@ document.addEventListener('DOMContentLoaded', async() => {
 
 // Generate tournament structure
 const generateNewTournamentObject = () => { 
-    let roundIndex, fightingFor;
     for (let index  = 0; index < 16; index++) {
-        switch(index){
-            case 0: 
-                roundIndex = 8    
-                fightingFor = 'home'  
-                break
-            case 1:
-                roundIndex = 8
-                fightingFor = 'away'
-                break;
-            case 2: 
-                roundIndex = 9
-                fightingFor = 'home'
-                break;
-            case 3:
-                roundIndex = 9
-                fightingFor = 'away'
-                break;
-            case 4: 
-                roundIndex = 10
-                fightingFor = 'home'
-                break;
-            case 5:
-                roundIndex = 10
-                fightingFor = 'away'
-                break;
-            case 6: 
-                roundIndex = 11
-                fightingFor = 'home'
-                break;
-            case 7:
-                roundIndex = 11
-                fightingFor = 'away'
-                break;
-            case 8:
-                roundIndex = 12
-                fightingFor = 'home'
-                break;
-            case 9:
-                roundIndex = 12
-                fightingFor = 'away'
-                break;
-            case 10: 
-                roundIndex = 13
-                fightingFor = 'home'
-                break;
-            case 11:
-                roundIndex = 13
-                fightingFor = 'away'
-                break;
-            case 12: 
-                fightingFor = 'home'
-                roundIndex = 14
-                break;
-            case 13:
-                fightingFor = 'away'
-                roundIndex = 14
-                break;
-            case 14:
-                fightingFor = 'home' //can change winner stuff probs
-                roundIndex = 15
-                break
-            default:
-                roundIndex = -1
-                break;    
-        }
         tournament[index] = {
             home: '',
             away: '',
             status: 'open',
-            next: roundIndex,
-            team: fightingFor,
+            next: Math.floor(index / 2) + 8,
+            team: (index & 1) ? 'away' : 'home',
             clickable : true,
-        }
+        };
     }
 }
 
@@ -105,8 +39,7 @@ const generateTournament = async() => {
             .then(res => res.json())
             .then(fighter => contenders.push(serializePokemon(fighter)));
         }
-    } 
-    
+    }
     for (let i = 0; i < contenders.length; i += 2) {
         Object.assign(tournament[i/2], {
             home: contenders[i],
@@ -124,8 +57,7 @@ const serializePokemon = (apiPokemon) => {
             name: stat.stat.name,
              value: stat.base_stat
         }
-    })
-    
+    })  
     return {
         id: apiPokemon.id,
         name: capitalizeString(apiPokemon.species.name),
