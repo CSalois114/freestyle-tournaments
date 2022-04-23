@@ -11,14 +11,15 @@ document.addEventListener('DOMContentLoaded', async() => {
 })
 
 // Generate tournament structure
-const generateNewTournamentObject = () => { 
+const newTournamentObject = () => { 
     for (let index  = 0; index < 16; index++) {
         tournament[index] = {
             home: '',
             away: '',
             status: 'open',
-            next: Math.floor(index / 2) + 8,
-            team: (index & 1) ? 'away' : 'home',
+            id: index,
+            nextId: Math.floor(index / 2) + 8,
+            nextTeam: (index & 1) ? 'away' : 'home',
             clickable : true,
         };
     }
@@ -26,7 +27,7 @@ const generateNewTournamentObject = () => {
 
 // Main function: generates tournament structure and gets random pokemon as fighters
 const generateTournament = async() => { 
-    generateNewTournamentObject()
+    newTournamentObject()
     const totalPokemon = await fetch(`${URL_BASE}-species/?limit=0`)
     .then(res => res.json())
     .then(data => data.count);
@@ -52,13 +53,14 @@ const generateTournament = async() => {
 }
 
 // converts pokemon api object to basic contender object
-const serializePokemon = (apiPokemon) => {
+const serializePokemon = (apiPokemon) => { 
     const statsArray = apiPokemon.stats.map(stat => {
         return {
             name: stat.stat.name,
-             value: stat.base_stat
+            value: stat.base_stat
         }
     })  
+
     return {
         id: apiPokemon.id,
         name: capitalizeString(apiPokemon.species.name),
@@ -92,14 +94,16 @@ const fillTournamentHTML = () => {
     saveTournament()
 }
 
+// const renderContender = (round)
+
 const winnerSelected = (e) => {
     const roundNumber = e.target.parentNode.parentNode.id.match(/\d+/)[0]
     const round = tournament[roundNumber]
-    const nextRound = tournament[round.next]
+    const nextRound = tournament[round.nextId]
     if(round.status == 'closed'){
         const winner = (round.home.img == e.target.src ?  "home" : "away");
 
-        const img = document.querySelector(`#round${round.next} .${round.team}`);
+        const img = document.querySelector(`#round${round.nextId} .${round.nextTeam}`);
         img.src = round[winner].img;
         img.style.opacity = 1;
         img.addEventListener('click', winnerSelected);
@@ -108,15 +112,15 @@ const winnerSelected = (e) => {
             img.removeEventListener('click', winnerSelected);
         });
 
-        if(round.next >= 14){
-            img.closest(`.pair`).querySelector(`.name-${round.team}`)
+        if(round.nextId >= 14){
+            img.closest(`.pair`).querySelector(`.name-${round.nextTeam}`)
             .textContent = round[winner].name;
         } 
-        
-        nextRound[round.team] = round[winner];
+
+        nextRound[round.nextTeam] = round[winner];
         nextRound.home && nextRound.away && (nextRound.status = 'closed');
         round.clickable = false;
-        if(round.next == 15) {
+        if(round.nextId == 15) {
             postNewChamp(round[winner]);
             document.getElementById('winner').style.animationPlayState = "running"
         }
@@ -170,6 +174,48 @@ const addResetFunctionality = () => {
     })
 }
 
+// CRUD
+
+const checkExistingTournament = () => { // Checks if there is an existing tournament
+    return fetch('http://localhost:3000/tournament')
+    .then((res)=>res.json())
+    .then((data)=> tournament = data)
+}
+
+const saveTournament = () => { // Saves Tournament state
+    try{
+        fetch('http://localhost:3000/tournament',{
+        method: 'PATCH',
+        headers:{
+            "Accept" : "application/json",
+            "Content-Type" : "application/json"
+        },
+        body: JSON.stringify(tournament)
+        })
+    }catch(error){
+        console.log(error)
+    }
+}
+
+const postNewChamp = (winner) => { // Saves a winner of a tournament in the podium
+    let object = {
+        name : winner.name
+    }
+    try{
+        fetch('http://localhost:3000/podium',{
+            method: 'POST',
+            headers: {
+                "Accept" : "application/json",
+                "Content-Type" : "application/json"
+            },
+            body: JSON.stringify(object)
+    
+        })
+    }catch(error){
+        console.log(winner)
+    }
+}
+
 //Test
 /*
 const tournamentResult = () => { // Randomizes the results of each fight and gives a final result
@@ -177,7 +223,7 @@ const tournamentResult = () => { // Randomizes the results of each fight and giv
     for (let index = 0; index < 15; index++) {
         result =  Math.floor(Math.random() * 2 )
 
-        next = tournament[`fight${index}`].next
+        next = tournament[`fight${index}`].nextId
 
         result == 0 ? winner = tournament[`fight${index}`].home : winner = tournament[`fight${index}`].away
         if(index == 14){
@@ -230,45 +276,3 @@ const tournamentResult = () => { // Randomizes the results of each fight and giv
     }
 }
 */
-
-// CRUD
-
-const checkExistingTournament = () => { // Checks if there is an existing tournament
-    return fetch('http://localhost:3000/tournament')
-    .then((res)=>res.json())
-    .then((data)=> tournament = data)
-}
-
-const saveTournament = () => { // Saves Tournament state
-    try{
-        fetch('http://localhost:3000/tournament',{
-        method: 'PATCH',
-        headers:{
-            "Accept" : "application/json",
-            "Content-Type" : "application/json"
-        },
-        body: JSON.stringify(tournament)
-        })
-    }catch(error){
-        console.log(error)
-    }
-}
-
-const postNewChamp = (winner) => { // Saves a winner of a tournament in the podium
-    let object = {
-        name : winner.name
-    }
-    try{
-        fetch('http://localhost:3000/podium',{
-            method: 'POST',
-            headers: {
-                "Accept" : "application/json",
-                "Content-Type" : "application/json"
-            },
-            body: JSON.stringify(object)
-    
-        })
-    }catch(error){
-        console.log(winner)
-    }
-}
