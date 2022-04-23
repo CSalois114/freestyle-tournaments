@@ -1,25 +1,17 @@
 let tournament = {}
-let contenders = []
 
 const defaultImg = 'https://pic.onlinewebfonts.com/svg/img_30754.png'
 const URL_BASE = 'https://pokeapi.co/api/v2/pokemon'
 
 document.addEventListener('DOMContentLoaded', async() => {
-    await checkExistingTournament()
-    
-    if(tournament[0]) {
-        retrieveContenders()
-        uploadSavedTournament()   
-    } else {
-        generateTournament()
-    }
-    
+    await checkExistingTournament();
+    (tournament[0]) ? fillTournamentHTML() : generateTournament();
     addResetFunctionality()
     //tournamentResult()
 })
 
 // Generate tournament structure
-const tournamentStructure = () => { 
+const generateNewTournamentObject = () => { 
     let roundIndex, fightingFor;
     for (let index  = 0; index < 16; index++) {
         switch(index){
@@ -80,7 +72,7 @@ const tournamentStructure = () => {
                 roundIndex = 14
                 break;
             case 14:
-                fightingFor = 'winner'
+                fightingFor = 'home' //can change winner stuff probs
                 roundIndex = 15
                 break
             default:
@@ -100,11 +92,12 @@ const tournamentStructure = () => {
 
 // Main function: generates tournament structure and gets random pokemon as fighters
 const generateTournament = async() => { 
-    tournamentStructure()
+    generateNewTournamentObject()
     const totalPokemon = await fetch(`${URL_BASE}-species/?limit=0`)
     .then(res => res.json())
     .then(data => data.count);
-     
+    
+    const contenders = [];
     while(contenders.length < 16){
         let id = Math.ceil(Math.random() * totalPokemon);
         if(!contenders.find(contender => contender.id == id)){
@@ -113,8 +106,15 @@ const generateTournament = async() => {
             .then(fighter => contenders.push(serializePokemon(fighter)));
         }
     } 
-    saveContenders();
-    generateTournamentBracket(contenders);
+    
+    for (let i = 0; i < contenders.length; i += 2) {
+        Object.assign(tournament[i/2], {
+            home: contenders[i],
+            away: contenders[i + 1],
+            status:'closed'
+        })
+    }
+    fillTournamentHTML()
 }
 
 // converts pokemon api object to basic contender object
@@ -136,98 +136,27 @@ const serializePokemon = (apiPokemon) => {
 
 const capitalizeString = (str) => str.charAt(0).toUpperCase() + str.slice(1)
 
-// Generates the tournament bracket and fills the object tournament
-const generateTournamentBracket = (contenders) => {  
-    for (let i = 0; i < contenders.length; i += 2) {
-        Object.assign(tournament[i/2], {
-            home: contenders[i],
-            away: contenders[i + 1],
-            status:'closed'
-        })
-    }
-    fillTournamentHTML()
-}
-
 //places the contenders in the starting spots
 const fillTournamentHTML = () => {
-    for (let index = 0; index < 8; index++) {
+    for (let index = 0; index < 16; index++) {
         const round = tournament[index];
         const roundDiv = document.getElementById(`round${index}`);
         ['home', 'away'].forEach(team => {
-            roundDiv.querySelector(`.name-${team}`).textContent = round[team].name;
-            const img = roundDiv.querySelector(`img.${team}`);
-            img.src = round[team].img;
-            img.style.opacity = 1;
-            addShowStatsListener(img, round[team].stats);
-            round.clickable && img.addEventListener('click', winnerSelected);
+            if(round[team]) {
+                const name = roundDiv.querySelector(`.name-${team}`);
+                name && (name.textContent = round[team].name);
+                const img = roundDiv.querySelector(`img.${team}`);
+                img.src = round[team].img;
+                img.style.opacity = 1;
+                addShowStatsListener(img, round[team].stats);
+                round.clickable && img.addEventListener('click', winnerSelected);
+                if(index == 15) {
+                    document.getElementById('winner').style.animationPlayState = "running"
+                }
+            }
         })
     }  
     saveTournament()
-}
-
-const uploadSavedTournament = () => {
-    let name
-    for (let index = 0; index < 15; index++) {
-        round = tournament[index]
-        if(index == 14){
-            if(round.home != ''){
-                roundHTML = document.getElementById('home-finals')
-                name = roundHTML.getElementsByTagName('h3')
-                name[0].textContent = round.home.name
-                image = roundHTML.getElementsByTagName('img')
-                image[0].src = round.home.img
-                image[0].style.opacity = 1;
-                image[0].id = round.home.id
-                image[0].addEventListener('click', winnerSelected)
-                addShowStatsListener(image[0], round.home.stats)
-            }
-
-            if(round.away != ''){
-                roundHTML = document.getElementById('away-finals')
-                name = roundHTML.getElementsByTagName('h3')
-                name[0].textContent = round.away.name
-                image = roundHTML.getElementsByTagName('img')
-                image[0].src = round.away.img
-                image[0].style.opacity = 1;
-                image[0].id = round.away.id
-                image[0].addEventListener('click', winnerSelected)
-                addShowStatsListener(image[0], round.away.stats)
-            }
-        }else{
-            roundHTML = document.getElementById(`round${index}`)
-            images = roundHTML.getElementsByTagName('img')
-            switch(index){
-                case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7:
-                    names = roundHTML.getElementsByClassName('name')
-                    names[0].textContent = round.home.name
-                    names[1].textContent = round.away.name
-                    break;
-            }
-
-            if(round.home != ''){
-                //home contender
-                images[0].src = round.home.img
-                images[0].style.opacity = 1;
-                images[0].id = round.home.id
-                addShowStatsListener(images[0], round.home.stats)
-            }
-            if(round.away != ''){
-                //Away contender
-                images[1].src = round.away.img
-                images[1].style.opacity = 1;
-                images[1].id = round.away.id
-                addShowStatsListener(images[1], round.away.stats)
-            }
-            if(round.clickable){
-                for (const oneImage of images) {
-                    if(oneImage.src != defaultImg) {
-                        oneImage.addEventListener('click', winnerSelected)
-                        oneImage.style.opacity = 1;  
-                    }
-                }
-            }
-        }
-    } 
 }
 
 const winnerSelected = (e) => {
@@ -288,7 +217,6 @@ const addResetFunctionality = () => {
     const button = document.getElementById("reset-button")
     button.addEventListener('click', () => {
         tournament = {}
-        contenders = []
         document.getElementsByTagName('h2')[1].textContent = ''
         document.querySelectorAll('h3').forEach(elm => elm.textContent = '')
 
@@ -376,27 +304,6 @@ const checkExistingTournament = () => { // Checks if there is an existing tourna
     return fetch('http://localhost:3000/tournament')
     .then((res)=>res.json())
     .then((data)=> tournament = data)
-}
-
-const retrieveContenders = () => { // Retrieves contenders if a tournament exists
-    fetch('http://localhost:3000/contenders')
-    .then((res)=>res.json())
-    .then((data)=> contenders = data)
-}
-
-const saveContenders = () => {  // Saves contenders
-    try{
-        fetch('http://localhost:3000/contenders',{
-        method: 'PATCH',
-        headers:{
-            "Accept" : "application/json",
-            "Content-Type" : "application/json"
-        },
-        body: JSON.stringify(contenders)
-        })
-    }catch(error){
-        console.log(error)
-    }
 }
 
 const saveTournament = () => { // Saves Tournament state
