@@ -101,6 +101,11 @@ img {
   white-space: nowrap;
 }
 
+#winner-name {
+  display: block;
+}
+
+
 .finals .name {
   width: 0;
 }

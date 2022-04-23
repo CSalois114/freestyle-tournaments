@@ -40,6 +40,7 @@ const generateTournament = async() => {
             .then(fighter => contenders.push(serializePokemon(fighter)));
         }
     }
+
     for (let i = 0; i < contenders.length; i += 2) {
         Object.assign(tournament[i/2], {
             home: contenders[i],
@@ -108,10 +109,10 @@ const winnerSelected = (e) => {
         });
 
         if(round.next >= 14){
-            document.getElementById(`${round.team}-name`)
+            img.closest(`.pair`).querySelector(`.name-${round.team}`)
             .textContent = round[winner].name;
         } 
-
+        
         nextRound[round.team] = round[winner];
         nextRound.home && nextRound.away && (nextRound.status = 'closed');
         round.clickable = false;
