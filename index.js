@@ -105,7 +105,6 @@ const winnerSelected = (e) => {
 // Renders a contender on the page
 const renderContender = (round, team) => {
     const imgElm = document.querySelector(`#round${round.id} img.${team}`);
-    console.log(round, team, imgElm)
     imgElm.src = round[team].img;
     imgElm.style.opacity = 1;
 
