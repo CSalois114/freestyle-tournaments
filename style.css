@@ -30,7 +30,7 @@ body {
   transform: translate(-50%);
 }
 
-#winner {
+#round15 {
   width: var(--bracket-width);
   text-align: center;
   position: absolute;
@@ -38,13 +38,13 @@ body {
   z-index: -1;
 }
 
-#winner img {
+#round15 img {
   margin: -20px 0 -20px 0;
   max-width: 100px;
   max-height: 100px;
 }
 
-#winner {
+#round15 {
   animation-name: fade-in;
   animation-duration: 1s;
   animation-iteration-count: 1;

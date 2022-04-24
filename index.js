@@ -1,6 +1,5 @@
 let tournament = {}
 
-const defaultImg = 'https://pic.onlinewebfonts.com/svg/img_30754.png'
 const URL_BASE = 'https://pokeapi.co/api/v2/pokemon'
 
 document.addEventListener('DOMContentLoaded', async() => {
@@ -41,7 +40,6 @@ const generateTournament = async() => {
             .then(fighter => contenders.push(serializePokemon(fighter)));
         }
     }
-
     for (let i = 0; i < contenders.length; i += 2) {
         Object.assign(tournament[i/2], {
             home: contenders[i],
@@ -52,7 +50,7 @@ const generateTournament = async() => {
     fillTournamentHTML()
 }
 
-// converts pokemon api object to basic contender object
+// Converts pokemon api object to basic contender object
 const serializePokemon = (apiPokemon) => { 
     const statsArray = apiPokemon.stats.map(stat => {
         return {
@@ -60,7 +58,6 @@ const serializePokemon = (apiPokemon) => {
             value: stat.base_stat
         }
     })  
-
     return {
         id: apiPokemon.id,
         name: capitalizeString(apiPokemon.species.name),
@@ -71,62 +68,55 @@ const serializePokemon = (apiPokemon) => {
 
 const capitalizeString = (str) => str.charAt(0).toUpperCase() + str.slice(1)
 
-//places the contenders in the starting spots
+// Places the contenders in the starting spots
 const fillTournamentHTML = () => {
-    for (let index = 0; index < 16; index++) {
-        const round = tournament[index];
-        const roundDiv = document.getElementById(`round${index}`);
+    Object.values(tournament).forEach(round => {
         ['home', 'away'].forEach(team => {
-            if(round[team]) {
-                const name = roundDiv.querySelector(`.name-${team}`);
-                name && (name.textContent = round[team].name);
-                const img = roundDiv.querySelector(`img.${team}`);
-                img.src = round[team].img;
-                img.style.opacity = 1;
-                addShowStatsListener(img, round[team].stats);
-                round.clickable && img.addEventListener('click', winnerSelected);
-                if(index == 15) {
-                    document.getElementById('winner').style.animationPlayState = "running"
-                }
-            }
-        })
-    }  
-    saveTournament()
+            round[team] && renderContender(round, team)
+        });
+    });
+    saveTournament();
 }
 
-// const renderContender = (round)
-
+// Event listener for picking a winner of a round
 const winnerSelected = (e) => {
-    const roundNumber = e.target.parentNode.parentNode.id.match(/\d+/)[0]
-    const round = tournament[roundNumber]
-    const nextRound = tournament[round.nextId]
+    const round = tournament[e.target.closest('.round').id.match(/\d+/)[0]]
     if(round.status == 'closed'){
-        const winner = (round.home.img == e.target.src ?  "home" : "away");
+        const winningTeam = e.target.className;
+        const nextRound = tournament[round.nextId];
 
-        const img = document.querySelector(`#round${round.nextId} .${round.nextTeam}`);
-        img.src = round[winner].img;
-        img.style.opacity = 1;
-        img.addEventListener('click', winnerSelected);
-        addShowStatsListener(img, round[winner].stats);
-        e.target.closest('.pair').querySelectorAll('img').forEach(img => {
+        nextRound[round.nextTeam] = round[winningTeam];
+        renderContender(nextRound, round.nextTeam);
+        
+        document.querySelectorAll(`#round${round.id} img`).forEach(img => {
             img.removeEventListener('click', winnerSelected);
         });
-
-        if(round.nextId >= 14){
-            img.closest(`.pair`).querySelector(`.name-${round.nextTeam}`)
-            .textContent = round[winner].name;
-        } 
-
-        nextRound[round.nextTeam] = round[winner];
-        nextRound.home && nextRound.away && (nextRound.status = 'closed');
+        
         round.clickable = false;
-        if(round.nextId == 15) {
-            postNewChamp(round[winner]);
-            document.getElementById('winner').style.animationPlayState = "running"
-        }
+        nextRound.home && nextRound.away && (nextRound.status = 'closed');
+
+        round.nextId == 15 && postNewChamp(round[winningTeam]);
         saveTournament();
     }else{
         alert('Please select opponent before advancing');
+    }
+}
+
+// Renders a contender on the page
+const renderContender = (round, team) => {
+    console.log(round, team)
+    const imgElm = document.querySelector(`#round${round.id} img.${team}`);
+    imgElm.src = round[team].img;
+    imgElm.style.opacity = 1;
+
+    const nameElm = document.querySelector(`#round${round.id} .name-${team}`);
+    nameElm && (nameElm.textContent = round[team].name);
+    
+    addShowStatsListener(imgElm, round[team].stats);
+    round.clickable && imgElm.addEventListener('click', winnerSelected);
+
+    if(round.id == 15) {
+        document.getElementById(`round${round.id}`).style.animationPlayState = "running";
     }
 }
 
@@ -154,22 +144,20 @@ const addResetFunctionality = () => {
     const button = document.getElementById("reset-button")
     button.addEventListener('click', () => {
         tournament = {}
-        document.getElementsByTagName('h2')[1].textContent = ''
-        document.querySelectorAll('h3').forEach(elm => elm.textContent = '')
+        document.querySelectorAll('.name').forEach(elm => elm.textContent = '')
 
-        let images = document.getElementsByTagName('img')
-        for (const oldImg of images) {
+        document.querySelectorAll('img').forEach(oldImg => {
             const img = oldImg.cloneNode(true)
             oldImg.parentNode.replaceChild(img, oldImg)
-            img.src = defaultImg
             img.style.opacity = 0;
-        }
+        })
 
-        const animatedElm = document.getElementById('winner');
-        animatedElm.style.animation = 'none';
-        animatedElm.offsetHeight;
-        animatedElm.style.animation = null;
-
+        document.querySelectorAll('.animated').forEach(animatedElm => {
+            animatedElm.style.animation = 'none';
+            animatedElm.offsetHeight;
+            animatedElm.style.animation = null;
+        });
+        
         generateTournament()
     })
 }
@@ -223,7 +211,7 @@ const tournamentResult = () => { // Randomizes the results of each fight and giv
     for (let index = 0; index < 15; index++) {
         result =  Math.floor(Math.random() * 2 )
 
-        next = tournament[`fight${index}`].nextId
+        next = tournament[index].nextId
 
         result == 0 ? winner = tournament[`fight${index}`].home : winner = tournament[`fight${index}`].away
         if(index == 14){
@@ -236,7 +224,7 @@ const tournamentResult = () => { // Randomizes the results of each fight and giv
             break;
         }
 
-        round = document.getElementById(`round${next}`)
+        round = document.getElementById(`${next}`)
         
 
         if(tournament[`fight${next}`].home == ''){
@@ -269,8 +257,8 @@ const tournamentResult = () => { // Randomizes the results of each fight and giv
             }
         }
 
-        if(tournament[`fight${next}`].home != '' && tournament[`fight${next}`].away != ''){
-            tournament[`fight${next}`].status = 'closed'
+        if(tournament[next].home != '' && tournament[next].away != ''){
+            tournament[next].status = 'closed'
         }
         
     }
