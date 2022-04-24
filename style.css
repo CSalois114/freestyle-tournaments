@@ -42,6 +42,8 @@ body {
   margin: -20px 0 -20px 0;
   max-width: 100px;
   max-height: 100px;
+  min-width: 100px;
+  min-height: 100px;
 }
 
 #round15 {
@@ -82,6 +84,8 @@ body {
 img {
   max-width: var(--competitor-img-size);
   max-height: var(--competitor-img-size);
+  min-width: var(--competitor-img-size);
+  min-height: var(--competitor-img-size);
   opacity: 0;
 }
 

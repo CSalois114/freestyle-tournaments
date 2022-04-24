@@ -104,8 +104,8 @@ const winnerSelected = (e) => {
 
 // Renders a contender on the page
 const renderContender = (round, team) => {
-    console.log(round, team)
     const imgElm = document.querySelector(`#round${round.id} img.${team}`);
+    console.log(round, team, imgElm)
     imgElm.src = round[team].img;
     imgElm.style.opacity = 1;
 
@@ -151,13 +151,11 @@ const addResetFunctionality = () => {
             oldImg.parentNode.replaceChild(img, oldImg)
             img.style.opacity = 0;
         })
-
         document.querySelectorAll('.animated').forEach(animatedElm => {
             animatedElm.style.animation = 'none';
             animatedElm.offsetHeight;
             animatedElm.style.animation = null;
-        });
-        
+        });   
         generateTournament()
     })
 }
