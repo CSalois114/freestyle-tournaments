@@ -1,11 +1,10 @@
-let tournament = {}
-
-const URL_BASE = 'https://pokeapi.co/api/v2/pokemon'
+let tournament;
+const URL_BASE = 'https://pokeapi.co/api/v2/pokemon';
 
 document.addEventListener('DOMContentLoaded', async() => {
-    await checkExistingTournament();
+    tournament = await getExistingTournament();
     (tournament[0]) ? fillTournamentHTML() : generateTournament();
-    addResetFunctionality()
+    addResetFunctionality();
     //tournamentResult()
 })
 
@@ -38,7 +37,7 @@ const generateTournament = async() => {
             await fetch(`${URL_BASE}/${id}`)
             .then(res => res.json())
             .then(fighter => contenders.push(serializePokemon(fighter)));
-        }
+        } //look into  simultaneous fetch for all pokemon 
     }
     for (let i = 0; i < contenders.length; i += 2) {
         Object.assign(tournament[i/2], {
@@ -119,6 +118,7 @@ const renderContender = (round, team) => {
     }
 }
 
+// add mouseover and mouseout to img that show and hide stats
 const addShowStatsListener = (imgElm, stats) => {
     const statsList = document.createElement('ul')
     statsList.classList.add("stats")
@@ -130,7 +130,6 @@ const addShowStatsListener = (imgElm, stats) => {
         li.textContent = `${stat.name}: ${stat.value}`
         statsList.append(li)
     })
-    
     imgElm.addEventListener('mouseover', () => {
         statsList.style.display = 'block'
     })
@@ -139,6 +138,7 @@ const addShowStatsListener = (imgElm, stats) => {
     })
 }
 
+// resets the tournament and gets new contenders when button is clicked
 const addResetFunctionality = () => {
     const button = document.getElementById("reset-button")
     button.addEventListener('click', () => {
@@ -158,16 +158,16 @@ const addResetFunctionality = () => {
         generateTournament()
     })
 }
-
 // CRUD
-
-const checkExistingTournament = () => { // Checks if there is an existing tournament
+// Checks if there is an existing tournament
+const getExistingTournament = () => { 
     return fetch('http://localhost:3000/tournament')
-    .then((res)=>res.json())
-    .then((data)=> tournament = data)
+    .then(res => res.json())
+    .then(data => data)
 }
 
-const saveTournament = () => { // Saves Tournament state
+// Saves Tournament state
+const saveTournament = () => { 
     try{
         fetch('http://localhost:3000/tournament',{
         method: 'PATCH',
@@ -182,7 +182,8 @@ const saveTournament = () => { // Saves Tournament state
     }
 }
 
-const postNewChamp = (winner) => { // Saves a winner of a tournament in the podium
+// Saves a winner of a tournament in the podium
+const postNewChamp = (winner) => { 
     let object = {
         name : winner.name
     }
